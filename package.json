@@ -2,7 +2,7 @@
   "version": "1.7.0",
   "main": "src/index.js",
   "name": "@arcaelas/command",
-  "description": "@arcaelas has implemented a library dedicated to building commands.",
+  "description": "If you are one of those who like to use terminals, you can create your own native commands using \"command\".",
   "scripts": {
     "start": "tsc --watch",
     "prepublishOnly": "tsc && npm version minor",
@@ -10,8 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/arcaelas/arcaelas.git",
-    "directory": "command"
+    "url": "git+ssh://github.com/Arcaelas-Insiders-ES/command.git"
   },
   "keywords": [
     "command",
