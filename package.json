@@ -1,0 +1,42 @@
+{
+  "version": "1.7.0",
+  "main": "src/index.js",
+  "name": "@arcaelas/command",
+  "description": "@arcaelas has implemented a library dedicated to building commands.",
+  "scripts": {
+    "start": "tsc --watch",
+    "prepublishOnly": "tsc && npm version minor",
+    "commit": "npm publish --access=public && rm -rf ./src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arcaelas/arcaelas.git",
+    "directory": "command"
+  },
+  "keywords": [
+    "command",
+    "cmd",
+    "arcaelas",
+    "@arcaelas",
+    "framework",
+    "terminal",
+    "console",
+    "logger"
+  ],
+  "author": {
+    "name": "Alejandro Reyes",
+    "email": "arcaelas.reyes@gmail.com"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arcaelas/arcaelas/issues"
+  },
+  "homepage": "https://github.com/arcaelas/arcaelas#readme",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.11"
+  }
+}
