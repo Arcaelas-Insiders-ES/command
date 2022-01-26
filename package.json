@@ -1,5 +1,5 @@
 {
-  "version": "1.10.0",
+  "version": "1.11.0",
   "main": "src/index.js",
   "name": "@arcaelas/command",
   "description": "If you are one of those who like to use terminals, you can create your own native commands using \"command\".",
