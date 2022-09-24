@@ -235,10 +235,10 @@ function command(name: string, props: Arcaela.command.Props | null = null) : Arc
                 }
                 return;
             }
-            await _.over( _.values(this.$events.before) )( params.options, params );
+            await _.over( _.values($events.before) )( params.options, params );
             if(typeof props.action==='function')
                 await props.action(params.options, params);
-            await _.over( _.values(this.$events.after) )( params.options, params );
+            await _.over( _.values($events.after) )( params.options, params );
             return this;
         },
     };
