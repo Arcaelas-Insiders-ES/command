@@ -221,6 +221,7 @@ function command(name: string, props: Arcaela.command.Props | null = null) : Arc
             return ()=>{};
         },
         async exec(argv: string[]) : Promise<Arcaela.command.Command> {
+            const interval = setInterval(Date.now, 700)
             const params = parseOptions(this.options, argv);
             if(params.argv.some(a=>['-h','--help'].includes(a))){
                 console.log(`Arcaela CLI`.green.bold, ("(Servidores construídos en "+"NodeJS".green+")").bold )
@@ -239,6 +240,7 @@ function command(name: string, props: Arcaela.command.Props | null = null) : Arc
             if(typeof props.action==='function')
                 await props.action(params.options, params);
             await _.over( _.values($events.after) )( params.options, params );
+            clearInterval(interval)
             return this;
         },
     };
