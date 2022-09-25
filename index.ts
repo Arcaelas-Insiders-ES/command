@@ -222,25 +222,31 @@ function command(name: string, props: Arcaela.command.Props | null = null) : Arc
         },
         async exec(argv: string[]) : Promise<Arcaela.command.Command> {
             const interval = setInterval(Date.now, 700)
-            const params = parseOptions(this.options, argv);
-            if(params.argv.some(a=>['-h','--help'].includes(a))){
-                console.log(`Arcaela CLI`.green.bold, ("(Servidores construídos en "+"NodeJS".green+")").bold )
-                console.log("command:".yellow.bold, `${this.name}`.green )
-                console.log("Usage:".yellow.bold, this.usage )
-                console.log("Options:".yellow.bold)
-                for(let k in this.options){
-                    let option = this.options[ k ];
-                    console.log(` --${k}`);
-                    console.log(`  Type: `.green.bold, (option.type || Boolean)?.name);
-                    console.log(`  Value: `.green.bold, 'static' in option ? option.static: option.value);
+            try {
+                const params = parseOptions(this.options, argv);
+                if(params.argv.some(a=>['-h','--help'].includes(a))){
+                    console.log(`Arcaela CLI`.green.bold, ("(Servidores construídos en "+"NodeJS".green+")").bold )
+                    console.log("command:".yellow.bold, `${this.name}`.green )
+                    console.log("Usage:".yellow.bold, this.usage )
+                    console.log("Options:".yellow.bold)
+                    for(let k in this.options){
+                        let option = this.options[ k ];
+                        console.log(` --${k}`);
+                        console.log(`  Type: `.green.bold, (option.type || Boolean)?.name);
+                        console.log(`  Value: `.green.bold, 'static' in option ? option.static: option.value);
+                    }
+                    return;
                 }
-                return;
+                await _.over( _.values($events.before) )( params.options, params );
+                if(typeof props.action==='function')
+                    await props.action(params.options, params);
+                await _.over( _.values($events.after) )( params.options, params );
+            } catch (error) {
+                console.error( error )
+                process.exit(1)
+            } finally {
+                clearInterval(interval)
             }
-            await _.over( _.values($events.before) )( params.options, params );
-            if(typeof props.action==='function')
-                await props.action(params.options, params);
-            await _.over( _.values($events.after) )( params.options, params );
-            clearInterval(interval)
             return this;
         },
     };
