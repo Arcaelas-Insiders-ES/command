@@ -98,7 +98,7 @@ declare global {
                /**
                 * @description Callback that is executed when the command is called, the arguments it receives are formatted with the "Type" function of each option.
                 */
-               action(options?: Params['options'], params?: Params) : Promise<void>
+               action(options?: Params['options'], params?: Params) : any | Promise<any>
             }
             /**
              * @description Remove listener.
