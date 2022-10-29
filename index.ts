@@ -4,7 +4,7 @@ const _ = require('lodash');
 
 declare global {
     namespace Arcaela {
-        namespace command {
+        namespace Command {
             /**
              * @description Optional properties, in case any of these are received as an argument.
              * @example
@@ -138,19 +138,19 @@ declare global {
              * @description All defined commands are stored here.
              */
             type commands = {
-                [k: string] : command.Command
+                [k: string] : Command.Command
             };
         }
-        module command {
+        module Command {
             /**
              * @description - Find some command with iterable function.
              */
-            function find(executor: (command: Arcaela.command.Command)=> boolean) : Arcaela.command.Command
+            function find(executor: (command: Arcaela.Command.Command)=> boolean) : Arcaela.Command.Command
         
             /**
              * @description - Quick execution of this command.
              */
-            function exec<N extends string, A extends []>(name: N, argv: A) : Arcaela.command.Command
+            function exec<N extends string, A extends []>(name: N, argv: A) : Arcaela.Command.Command
         
             /**
              * @description - Print all comands usage in the terminal.
@@ -161,15 +161,15 @@ declare global {
              * @description - Return all commands in store.
              */
             function all() : {
-                [K: string] : Arcaela.command.Command
+                [K: string] : Arcaela.Command.Command
             }
         }
     }
 }
 
 
-const commands : Arcaela.command.commands = {};
-function parseOptions(options = {}, argv = []): Arcaela.command.Params {
+const commands : Arcaela.Command.commands = {};
+function parseOptions(options = {}, argv = []): Arcaela.Command.Params {
     let params = {args:{},argv:[],options:{}}, last;
     params.argv = (argv||[]).map(str=>str.match(/[^\s]\s[^\s]/g)?`"${str}"`:str).join(" ").match(/^-[-a-z]+|\'[^']+'|\"[^"]+\"|[^\s]+/g)||[];
     for(let key of params.argv){
@@ -197,7 +197,7 @@ function parseOptions(options = {}, argv = []): Arcaela.command.Params {
     }
     return params;
 };
-function command(name: string, props: Arcaela.command.Props | null = null) : Arcaela.command.Command {
+function command(name: string, props: Arcaela.Command.Props | null = null) : Arcaela.Command.Command {
     name = name.replace(/[^a-z:_-]+/gi,'');
     if(props===null) return commands[ name ];
     const $events = { before:[], after:[], };
@@ -220,7 +220,7 @@ function command(name: string, props: Arcaela.command.Props | null = null) : Arc
             }
             return ()=>{};
         },
-        async exec(argv: string[]) : Promise<Arcaela.command.Command> {
+        async exec(argv: string[]) : Promise<Arcaela.Command.Command> {
             const interval = setInterval(Date.now, 700)
             try {
                 const params = parseOptions(this.options, argv);
@@ -253,13 +253,13 @@ function command(name: string, props: Arcaela.command.Props | null = null) : Arc
 }
 
 command.all = function all(){ return commands; }
-command.find = function find(executor: (c: Arcaela.command.Command)=> boolean) : Arcaela.command.Command {
+command.find = function find(executor: (c: Arcaela.Command.Command)=> boolean) : Arcaela.Command.Command {
     for(let name in commands){
         let b = executor( commands[name] );
         if(b) return commands[name];
     }
 }
-command.exec = function exec(name: string, argv: string[] = process.argv.slice(2)) : Promise<Arcaela.command.Command> {
+command.exec = function exec(name: string, argv: string[] = process.argv.slice(2)) : Promise<Arcaela.Command.Command> {
     return commands[name]?.exec( argv );
 }
 command.help = async function help(){
