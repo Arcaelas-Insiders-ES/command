@@ -1,174 +1,196 @@
-<img alt="ARCAELAS LOGO" src="https://raw.githubusercontent.com/Arcaelas-Insiders-ES/dist/main/banner/dark.svg" />
+
+![Arcaelas Insiders Banner](https://raw.githubusercontent.com/arcaelas/dist/main/banner/svg/dark.svg#gh-dark-mode-only)
+
+![Arcaelas Insiders Banner](https://raw.githubusercontent.com/arcaelas/dist/main/banner/svg/light.svg#gh-light-mode-only)
+
+  
+
+# Welcome to Arcaelas Insiders!
+
+Hello, if this is your first time reading the **[Arcaelas Insiders](https://github.com/arcaelas)**  **documentation**, let me tell you that you have found a good place to learn.  
+
+**Our team** and *community* are happy to write and make methods simple to implement and understand, but I think you already know that.
+
+Let's start with the basic implementation steps.
+```bash
+> npm i --save @arcaelas/command
+> yarn add --save @arcaelas/command
+```
+
+  
+
+## Implementation
+```javascript
+// Import Statement
+import Command from  '@arcaelas/command'
+
+// EsModule
+const Command  =  require('@arcaelas/command')
+```
+
+  
 
 # Command
 
-Hoy en día una gran variedad de aplicaciones disponen de **comandos** para simplificar procesos y ser intuitivas, por ese motivo el equipo de desarrollo de **arcaelas** ha implementado una librería dedicada a la construcción de **comandos**.
 
-## Instalación
-```bash
-npm install arcaelas/command
-```
+Today a wide variety of applications have **commands** to simplify processes and be intuitive, for this reason the **arcaelas** development team has implemented a library dedicated to the construction of **commands**.
+
+First of all, to declare a command it is necessary to specify a name with which it will be identified.
 
 ```js
-import Command from 'arcaelas/command'
-const Command = require("arcaelas/command");
-```
+const serve  =  Command("serve",{
+	usage:"Start server!"
+});
+``` 
 
-Antes que nada, para declarar un comando es necesario especificar un nombre con el cual será identificado.
+# Dynamic properties
+
+
+It's a simple thing, your command is already stored in the list of enabled commands for the environment. We could now assume that your command requires a list of parameters, including the port number where you want to run the **server**.
+
 ```js
-const serve = Command("serve",{
-    usage:"Inicializar un servidor"
+const serve  =  Command("serve",  {
+	options:{
+		port:  8080
+	}
 });
 ```
 
-<br/>
+>  Your command now expects the given port number to be **8080**, but in case the command runs like this:
 
-# Propiedades dinámicas
-Es algo simple, ya tu comando está almacenado en la lista de comandos hábiles para el entorno.
+```serve --port 3000```
+Then the **port** property would be **3000** and not **8080**.
 
-Ahora podríamos asumir que tu comando requiere de una lista de parámetros, entre ellos el número de puerto donde quieres ejecutar el **servidor**.
+# Static properties
 
-```js
-const serve = Command("serve", {
-    options:{
-        port: 8080
-    }
-});
-```
-> Tu comando ahora espera que el número de puerto indicado sea **8080**, pero en caso de que el comando se ejecute así:
-`serve --port 3000`
-entonces la propiedad **port** sería **3000** y no sería **8080**.
-
-<br/>
-
-# Propiedades estáticas.
-Al igual que las propiedades, tenemos **propiedades estáticas** que sirven para evitar que un mal tipeado del comando nos genere un resultado inesperado, para ello basta con definir dentro de nuestra opción, la propiedad **static**.
+Like the properties, we have **static properties** that serve to prevent a bad typing of the command from generating an unexpected result, for this it is enough to define the **static** property within our option.
 
 ```js
-const serve = Command("serve", {
-    options:{
-        port:{
-            static:8080
-        }
-    }
+const serve  =  Command("serve",  {
+	options:{
+		port:{
+			static:8080
+		}
+	}
 });
 ```
 
-> Al escribir `serve --port 3000` el valor de la propiedad **port** sería **8080** ya que su valor ha sido definido como estático.
+> By typing `serve --port 3000` the value of the **port** property would be **8080** since its value has been set to static.
 
-<br/>
+# Formats
 
-# Formatos
-
-Tambien podemos hablar de formatear los datos esperados en una propiedad, podría darse el caso de que nuestra aplicación requiera un tipo específico de datos (string, object, number, array).
+We can also talk about formatting the expected data in a property, it could be the case that our application requires a specific type of data (string, object, number, array).
 
 ```js
-const serve = Command("serve",{
-    options:{
-        port:{
-            value:8080, // or static: 8080
-            type:Number
-        }
-    }
+const serve  =  Command("serve",{
+	options:{
+		port:{
+			value:8080,  // or static: 8080
+			type:Number
+		}
+	}
 });
 ```
 
-Sea cual sea el valor que se pase por la línea de comandos, el manejador del comando utilizará la función "**Number**" para formatear el dato indicado, esto quiere decir que `serve --port 3000` daría como resultado la propiedad **port** con el valor numerico de **3000**, mientras que el comando `serve --port uno` daría su valor en **NaN**.
+Whatever value is passed on the command line, the command handler will use the "**Number**" function to format the indicated data, this means that `serve --port 3000` would result in the property **port** with the numeric value of **3000**, while the command `serve --port uno` would return its value to **NaN**.
 
-Otra de las ventajas de utilizar **Command** es la implementación de arreglos dentro de su línea de argumentos, podríamos decir que tu comando solo puede ejecutarse con ciertas rutas, puedes indicarlas así `serve --routes /home /dashboard /profile --port 3000` de forma natural solo se tomaría en cuenta el primer valor (**/home**), para que sea un arreglo de valores usamos la opción con el tipo Array.
+Another advantage of using **Command** is the implementation of arrays within its argument line, we could say that your command can only be executed with certain routes, you can indicate them like this `serve --routes /home /dashboard /profile - -port 3000` Naturally, only the first value (**/home**) would be taken into account. To make it an array of values, we use the option with the Array type.
 
 ```js
-const serve = Command("serve",{
-    options:{
-        port:{
-            type:Number
-        },
-        routes:{
-            type:Array,
-        }
-    }
+const serve  =  Command("serve",{
+	options:{
+		port:{
+			type:Number
+		},
+		routes:{
+			type:Array,
+		}
+	}
 })
 ```
 
 # Handler
 
-Declarar propiedades y tipos es algo muy útil, pero no sirve de nada mientras no puedas leer esos valores y hacer que tu comando realmente cumpla su cometido.
 
-Para lograr esto utilizamos la propiedad **action()** de las configuraciones.
+Declaring properties and types is a very useful thing to do, but it's useless until you can read those values and make your command actually do what it's supposed to do.
+
+To achieve this we use the **action()** property of the configurations.
+
 ```js
-const serve = Command("serve", {
-    options:{
-        port:{
-            type:Number,
-            value:8080
-        }
-    },
-    action(params){
-        /* Params incluye datos de interés. */
-       params.options; // object | Valores recividos en la consola y formateados, junto a los valores por defecto.
-
-       params.args; // object | Propiedades residuales o no específicadas.
-       
-       params.argv; // array | Lista de argumentos recibidos sin formatear.
-    }
+const serve  =  Command("serve",  {
+	options:{
+		port:{
+			type:Number,
+			value:8080
+		}
+	},
+	action(params){
+		params.options;  // object | Values from command and default values merged
+		params.args;  // object | Values that not defined in options.
+		params.argv;  // array | All values received from command
+	}
 })
 ```
 
-Ahora ya puedes darle vida a tu comando, desde la función **action()**.
+Now you can bring your command to life, from the **action()** function.
 
 # Events
 
-Anexando funcionalidades a los comandos, hemos decidido implementar listeners a estos, los eventos disponibles son **before** y **after**, dichos eventos se ejecutan antes y despues de ejecutar el comando.
+Attaching functionalities to the commands, we have decided to implement listeners to them, the available events are **before** and **after**, these events are executed before and after executing the command.
 
 ```js
-const serve = Command("serve", {});
+const serve  =  Command("serve",  {});
 
-const unBefore = serve.before((params)=>{
-    console.log("¡Calling");
-});
-const unAfter = serve.after((params)=>{
-    console.log("Called!");
+const unBefore  =  serve.before((params)=>{
+	console.log("¡Calling");
 });
 
+const unAfter  =  serve.after((params)=>{
+	console.log("Called!");
+});
 ```
 
-> Estos métodos propios del comando, retornan una función que sirve para desvincular el evento de estas funciones.
+> These own methods of the command, return a function that serves to unlink the event of these functions.
 
+# Execution
 
-# Ejecución
-
-Todo parece ser muy cómodo de implementar y entender, pero ¿Como hacemos para llamar nuestro comando?
-
+Everything seems to be very comfortable to implement and understand, but how do we call our command?
 
 ```js
-const serve = Command("serve");
 
-serve.exec(["--port", 8080, "--routes", "/home", "/dashboard", "/profile /configs"]);
+const serve  =  Command("serve");
+
+serve.exec(["--port",  8080,  "--routes",  "/home",  "/dashboard",  "/profile /configs"]);
 // or
-serve.exec( process.argv.slice(2) );
+serve.exec( process.argv.slice(2)  );
 ```
-
 
 # Statics
 
-El módulo de command tiene funciones estáticas.
+The command module has static functions.
 
 ## find(name: string | Function): Command
-> Buscar un comando por su nombre o por un iterador.
+
+>  Find command with name or iterator.
+
 ```js
 Command.find("serve").exec([])
 ```
 
 ## help(): never
-> Imprimir en la consola o terminal, los comandos definidos.
+
+>  Print all comands and usage in console.
 ```js
-serve.exec(["-h"]); // Help of serve.
-Command.help(); // Help of all commands.
+serve.exec(["-h"]);  // Help of serve.
+Command.help();  // Help of all commands.
 ```
 
-<div style="text-align:center;margin-top:50px;">
-<hr/>
-<img src="https://raw.githubusercontent.com/Arcaelas-Insiders-ES/dist/main/footer/dark.svg" width="400px" style="margin:20px 0;">
 
-> ¿Want to discuss any of my open source projects, or something else?Send me a direct message on [Instagram](https://instagram.com/arcaelas) or [Twitter](https://twitter.com/arcaelas).</br> If you already use these libraries and want to support us to continue development, you can sponsor us at [Github Sponsors](https://github.com/sponsors/arcaelas).
+<hr/>
+<div  style="text-align:center;margin-top:50px;">
+	<p  align="center">
+		<img  src="https://raw.githubusercontent.com/arcaelas/dist/main/logo/svg/64.svg"  height="32px">
+	<p>
+
+¿Want to discuss any of my open source projects, or something else?Send me a direct message on [Twitter](https://twitter.com/arcaelas).</br> If you already use these libraries and want to support us to continue development, you can sponsor us at [Github Sponsors](https://github.com/sponsors/arcaelas).
 </div>

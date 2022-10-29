@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://github.com/Arcaelas-Insiders-ES/command.git"
+    "url": "git+ssh://github.com/arcaelas/command.git"
   },
   "keywords": [
     "command",
