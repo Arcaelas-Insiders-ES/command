@@ -32,8 +32,7 @@
   },
   "homepage": "https://github.com/arcaelas/arcaelas#readme",
   "dependencies": {
-    "colors": "^1.4.0",
-    "lodash": "^4.17.21"
+    "colors": "^1.4.0"
   },
   "devDependencies": {
     "@arcaelas/utils": "^1.21.0",
