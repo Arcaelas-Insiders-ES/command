@@ -1,288 +1,149 @@
 import 'colors';
-const _ = require('lodash');
+import type { Noop, IObject } from '@arcaelas/utils'
 
+type Inmmutables<T = never> = string | number | boolean | undefined | (
+    T extends boolean ? Inmmutables[] : undefined
+)
 
-declare global {
-    namespace Arcaela {
-        namespace Command {
-            /**
-             * @description Optional properties, in case any of these are received as an argument.
-             * @example
-             * var options = { port:{ type:Number, value: 3000, macros:[{k:'prod', v:5000}] } }
-             * shell: arcaelas --daemon --prod
-             * // In this case the port will be Number{5000} since a "prod" argument has been sent.
-             */
-            interface Macro {
-                k: string,
-                v: any
-            }
-            interface Option {
-                /**
-                * @description Default Value for this argument
-                */
-                value?: any
-       
-                /**
-                * @description
-                * This is the default value of this option, if you specify the "static" field it will be taken as primary and will not be modified.
-                * @example
-                * {
-                *  value:12,
-                *  static:13
-                * }
-                * command.exec("myCommand", ['value', '25'])
-                * // Expected: 13
-                */
-                static?: any
- 
-                /**
-                * @description Function to Format value from shell (Default Boolean)
-                * @example
-                *  port:{ value:5000 }
-                * // Expected: true
-                *   port:{ value:5000, type:Number }
-                * // Expected: Number{ 5000 }
-                */
-                type()
-        
-                /**
-                * @description Use this option if that value depend from another argument
-                * @example
-                * {
-                *  options:{
-                *   port:{
-                *    value:5000,
-                *    macros:[{k:'dev',v:3000}]
-                *   }
-                *  }
-                * }
-                * command.exec("mycommand", []) // {port:5000}
-                * command.exec("mycommand", ['--dev']) // {port:3000}
-                */
-                macros?: Macro[]
-            }
-            interface Params {
-                /**
-                 * @description Residual arguments that were not included in the options but were still sent as arguments.
-                 */
-                args:Record<string, any[]>
-        
-                /**
-                 * @description All the arguments that were sent to the execution of this command.
-                 */
-                argv: string[]
-        
-                /**
-                 * @description Object (Key / Value) that includes the values ​​specified in the options field.
-                 * Each property includes the value already
-                 */
-                options:Record<string, string | number | []>
-            }
-            interface Props {
-               /**
-                * @description This property is defined after the command is created.
-                */
-               name?: string
+type TArguments<T extends IArguments = IArguments> = {
+    [K in keyof T]?: ReturnType<
+        T[K] extends IObject ? (
+            T[K]["type"] extends Noop ? T[K]["type"] : ()=>T[K]["value"]
+        ) : ()=>T[K]
+    >
+}
 
-               /**
-                * @description Textual description of the use of this command.
-                */
-               usage?: string
-
-               /**
-                * @description Options that can be read from the arguments received in the command console.
-                */
-               options?:{
-                   [k: string]: Option
-               }
-               /**
-                * @description Callback that is executed when the command is called, the arguments it receives are formatted with the "Type" function of each option.
-                */
-               action(options?: Params['options'], params?: Params) : any | Promise<any>
-            }
-            /**
-             * @description Remove listener.
-             */
-            type Unlistener = ()=> void
-            interface Command extends Props {
-                /**
-                 * @description command Name
-                 */
-                readonly name: string
-                /**
-                 *  @description Instructions for this command.
-                 */
-                readonly usage: string
-                /**
-                 * @description Use this property to create a listen event for this command, before it is executed.
-                 * @param {Params} params - Property that includes the options and arguments received for the execution.
-                 * @return {Unlistener}
-                 */
-                before(params: Params): Unlistener
-                /**
-                 * @description Use this property to create a listen event for this command, after it is executed.
-                 * @param {Params} params - Property that includes the options and arguments received for the execution.
-                 * @return {Unlistener}
-                 */
-                after(params: Params): Unlistener
-                /**
-                 * @description Use this property to execute the command, the parameter that is sent must be an array with the values ​​to be processed.
-                 * @param {[]} argv 
-                 * @example
-                 * mycommand.exec(['arg1', 'arg2'])
-                 * mycommand.exec( procces.argv.slice( 2 ) )
-                 */
-                exec(argv: string[]): Promise<Command>
-            }
-            /**
-             * @description All defined commands are stored here.
-             */
-            type commands = {
-                [k: string] : Command.Command
-            };
-        }
-        module Command {
-            /**
-             * @description - Find some command with iterable function.
-             */
-            function find(executor: (command: Arcaela.Command.Command)=> boolean) : Arcaela.Command.Command
-        
-            /**
-             * @description - Quick execution of this command.
-             */
-            function exec<N extends string, A extends []>(name: N, argv: A) : Arcaela.Command.Command
-        
-            /**
-             * @description - Print all comands usage in the terminal.
-             */
-            function help() : void
-        
-            /**
-             * @description - Return all commands in store.
-             */
-            function all() : {
-                [K: string] : Arcaela.Command.Command
-            }
-        }
+type IArguments<T extends IObject = IObject> = {
+    [K in keyof T]: Inmmutables<boolean> | {
+        /**
+         * @description
+         * Short description about this option to show when help command is run on this command.
+         */
+        description?: string
+        /** 
+         * @description
+         * Function to parse value from argument list.
+         */
+        type?: Noop
+        /**
+         * @description
+         * Defult value to use when argument list dont have any value for this argument.
+         */
+        value?: Inmmutables<boolean>
+        /**
+         * @description
+         * Statics props can't be change
+         */
+        static?: Inmmutables<boolean>
     }
 }
 
 
-const commands : Arcaela.Command.commands = {};
-function parseOptions(options = {}, argv = []): Arcaela.Command.Params {
-    let params = {args:{},argv:[],options:{}}, last;
-    params.argv = (argv||[]).map(str=>str.match(/[^\s]\s[^\s]/g)?`"${str}"`:str).join(" ").match(/^-[-a-z]+|\'[^']+'|\"[^"]+\"|[^\s]+/g)||[];
-    for(let key of params.argv){
-        let hd = key.match(/^--(\w+)/);
-        let short = key.split(/^-([a-z]+)/g)[1]?.split("");
-        if(short?.length===1) params.args[last=short[0]]=[];
-        else if(short?.length) for(let k of short) params.args[k]=[];
-        else if(hd) params.args[last=hd[1]]=[];
-        else if(last) params.args[last].push(key.replace(/^("(.*)"|'(.*)')$/g,"$2$3"));
-    }
-    for(let key in options){
-        let option = options[ key ];
-        if( typeof option!=='object' || Array.isArray(option) ){
-            params.options[ key ] = option;
-            continue;
-        }
-        option = { macros:[], value:null, type: Boolean, ...option};
-        let value = 'static' in option ? [ option.static ] : (
-            params.args[ key ]?.length ? params.args[ key ] : (
-                [(option.macros?.find(m=>m.k in params.args)||{v:'value' in option?option.value:true}).v]
-            )
-        );
-        params.options[ key ] = Array.prototype===option.type?.prototype?new option.type(...value):option.type(value[0]);
-        delete params.args[ key ];
-    }
-    return params;
-};
-function command(name: string, props: Arcaela.Command.Props | null = null) : Arcaela.Command.Command {
-    name = name.replace(/[^a-z:_-]+/gi,'');
-    if(props===null) return commands[ name ];
-    const $events = { before:[], after:[], };
-    return commands[ name ] = {
-        name,
-        usage: props?.usage || "",
-        options: props?.options || {},
-        action: props?.action || Function.call,
-        before(executor){
-            if( typeof executor==='function'){
-                $events.before.push( executor );
-                return ()=>$events.before.splice( $events.before.findIndex(fn=> fn===executor), 1 );
-            }
-            return ()=>{};
-        },
-        after(executor){
-            if( typeof executor==='function'){
-                $events.after.push( executor );
-                return ()=>$events.after.splice( $events.after.findIndex(fn=> fn===executor), 1 );
-            }
-            return ()=>{};
-        },
-        async exec(argv: string[]) : Promise<Arcaela.Command.Command> {
-            const interval = setInterval(Date.now, 700)
-            try {
-                const params = parseOptions(this.options, argv);
-                if(params.argv.some(a=>['-h','--help'].includes(a))){
-                    console.log(`Arcaela CLI`.green.bold, ("(Servidores construídos en "+"NodeJS".green+")").bold )
-                    console.log("command:".yellow.bold, `${this.name}`.green )
-                    console.log("Usage:".yellow.bold, this.usage )
-                    console.log("Options:".yellow.bold)
-                    for(let k in this.options){
-                        let option = this.options[ k ];
-                        console.log(` --${k}`);
-                        console.log(`  Type: `.green.bold, (option.type || Boolean)?.name);
-                        console.log(`  Value: `.green.bold, 'static' in option ? option.static: option.value);
+interface IOptions<A extends IArguments = IArguments> {
+    /**
+     * @deprecated
+     * @description
+     * Other names you want to use to access this command.
+     * @example
+     * command({
+     *  alias: ["dev", "run", "serve"]
+     * })
+     * command.exec("dev", ...args)
+     */
+    alias?: string[]
+    /**
+     * @description
+     * Short description about this command to show on help command run.
+     */
+    usage?: string
+    /**
+     * @description
+     * List of arguments that will be passed to the command from the execution line.
+     * NOTE: Each argument will be processed before the command is executed. 
+     */
+    arguments?: A
+    action(options: TArguments<A>, argv: string[]): void
+}
+
+
+export default interface Command<A extends IArguments = IArguments> {
+    new (options: IOptions<A>)
+
+    /**
+     * @description
+     * Show command usage and arguments descriptions in console.
+     */
+    help(): void
+
+    /**
+     * @description
+     * Run the command with a given list of arguments that will be formatted according to the argument configuration.
+     * @example
+     * const start = new Command("serve", {...})
+     * 
+     * start.exec("--port 8080")
+     * start.exec("--port", "8080")
+     * start.exec(["--port 8080"])
+     * start.exec(["--port", "8080"])
+     */
+    exec(...args: Array<Inmmutables<boolean>>): void
+}
+
+
+export default class Command<A extends IArguments = IArguments> {
+    private params: IObject = {}
+    constructor(private options: IOptions<A>) {
+        options.arguments ??= {} as any
+        for(const key in options.arguments){
+            const value: IObject = typeof (options.arguments[ key ]??false)!=='object'||Array.isArray(options.arguments[key])
+                ? { value: options.arguments[key] } : options.arguments[key] as any
+            this.params[ key ] = {
+                value: value?.static ?? value?.value ?? null,
+                description: value?.description ?? 'N/A',
+                type: value?.type ?? value.value?.constructor ?? (v=> v),
+                set(v){
+                    if(value.static) return
+                    if(this.type === Array){
+                        this.value = [].concat( v )
+                        this.set = v=> this.value.push(...[].concat(v))
+                        return
                     }
-                    return;
+                    this.value = this.type(v)
                 }
-                await _.over( _.values($events.before) )( params.options, params );
-                if(typeof props.action==='function')
-                    await props.action(params.options, params);
-                await _.over( _.values($events.after) )( params.options, params );
-            } catch (error) {
-                console.error( error )
-                process.exit(1)
-            } finally {
-                clearInterval(interval)
             }
-            return this;
-        },
-    };
-}
-
-command.all = function all(){ return commands; }
-command.find = function find(executor: (c: Arcaela.Command.Command)=> boolean) : Arcaela.Command.Command {
-    for(let name in commands){
-        let b = executor( commands[name] );
-        if(b) return commands[name];
-    }
-}
-command.exec = function exec(name: string, argv: string[] = process.argv.slice(2)) : Promise<Arcaela.Command.Command> {
-    return commands[name]?.exec( argv );
-}
-command.help = async function help(){
-    console.log(`Arcaela CLI`.green.bold, ("( Servidores construídos en "+"NodeJS".green+" )").bold );
-    console.warn(`Available commands:`);
-    for(let name in commands){
-        let command = commands[ name ];
-        console.log("command:".yellow.bold, `${command.name}`.green );
-        console.log("Usage:".yellow.bold, command.usage )
-        console.log("Options:".yellow.bold)
-        for(let k in command.options){
-            let option = command.options[ k ];
-            console.log(` --${k}`);
-            console.log(`  Type: `.green.bold, (option.type || Boolean)?.name);
-            console.log(`  Value: `.green.bold, 'static' in option ? option.static: option.value);
         }
-        console.log("\n");
     }
-};
 
-command("help",{
-    action: command.help,
-    usage:"Use this command to display all comands helper."
-});
+    async exec(...argv: Inmmutables<boolean>[]){
+        argv = argv.flat(Infinity).map(e=>String(e).trim()).filter(Boolean)
+        let last
+        for(const k of argv as string[]){
+            let [, arg] = k.match(/^--([a-z][\w-_]{2,})/i) || []
+            if(arg) last = arg
+            else if(last in this.params){
+                this.params[ last ].set( k )
+                if( this.params[ last ].type!==Array) last = undefined
+            }
+        }
+        const proxy = new Proxy({}, {
+            get: (_,k)=> this.params[ k ]?.value,
+        })
+        return this.options.action(proxy, argv as string[])
+    }
 
-export = command;
+    help(){
+        console.log(`Arcaelas Insiders CLI`.green.bold);
+        console.log("%s", this.options.usage || 'N/A')
+        console.log("arguments:".yellow.bold)
+        for (let k in this.params) {
+            let option = this.params[k];
+            console.log(`   --${k}`);
+            console.log(`       %s`, option.description);
+        }
+    }
+
+}
+
+
+export const command = <A extends IArguments = IArguments>(options: IOptions<A>): Command<A>=>
+    new Command(options)

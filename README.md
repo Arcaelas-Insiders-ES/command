@@ -17,39 +17,37 @@ Let's start with the basic implementation steps.
 > yarn add --save @arcaelas/command
 ```
 
-  
+
 
 ## Implementation
 ```javascript
-// Import Statement
+// Class Import Statement
 import Command from  '@arcaelas/command'
+
+// Function import statement
+import { command } from  '@arcaelas/command'
 
 // EsModule
 const Command  =  require('@arcaelas/command')
 ```
 
-  
 
 # Command
 
-
 Today a wide variety of applications have **commands** to simplify processes and be intuitive, for this reason the **arcaelas** development team has implemented a library dedicated to the construction of **commands**.
 
-First of all, to declare a command it is necessary to specify a name with which it will be identified.
-
 ```js
-const serve  =  Command("serve",{
+const serve  =  new Command({
 	usage:"Start server!"
 });
 ``` 
 
-# Dynamic properties
-
+# Arguments
 
 It's a simple thing, your command is already stored in the list of enabled commands for the environment. We could now assume that your command requires a list of parameters, including the port number where you want to run the **server**.
 
 ```js
-const serve  =  Command("serve",  {
+const serve  =  Command({
 	options:{
 		port:  8080
 	}
@@ -61,12 +59,12 @@ const serve  =  Command("serve",  {
 ```serve --port 3000```
 Then the **port** property would be **3000** and not **8080**.
 
-# Static properties
+## Inmutable arguments
 
 Like the properties, we have **static properties** that serve to prevent a bad typing of the command from generating an unexpected result, for this it is enough to define the **static** property within our option.
 
 ```js
-const serve  =  Command("serve",  {
+const serve  =  new Command({
 	options:{
 		port:{
 			static:8080
@@ -82,7 +80,7 @@ const serve  =  Command("serve",  {
 We can also talk about formatting the expected data in a property, it could be the case that our application requires a specific type of data (string, object, number, array).
 
 ```js
-const serve  =  Command("serve",{
+const serve  =  new Command({
 	options:{
 		port:{
 			value:8080,  // or static: 8080
@@ -97,7 +95,7 @@ Whatever value is passed on the command line, the command handler will use the "
 Another advantage of using **Command** is the implementation of arrays within its argument line, we could say that your command can only be executed with certain routes, you can indicate them like this `serve --routes /home /dashboard /profile - -port 3000` Naturally, only the first value (**/home**) would be taken into account. To make it an array of values, we use the option with the Array type.
 
 ```js
-const serve  =  Command("serve",{
+const serve  =  new Command({
 	options:{
 		port:{
 			type:Number
@@ -111,13 +109,12 @@ const serve  =  Command("serve",{
 
 # Handler
 
-
 Declaring properties and types is a very useful thing to do, but it's useless until you can read those values and make your command actually do what it's supposed to do.
 
 To achieve this we use the **action()** property of the configurations.
 
 ```js
-const serve  =  Command("serve",  {
+const serve  =  new Command("serve",  {
 	options:{
 		port:{
 			type:Number,
@@ -134,57 +131,18 @@ const serve  =  Command("serve",  {
 
 Now you can bring your command to life, from the **action()** function.
 
-# Events
-
-Attaching functionalities to the commands, we have decided to implement listeners to them, the available events are **before** and **after**, these events are executed before and after executing the command.
-
-```js
-const serve  =  Command("serve",  {});
-
-const unBefore  =  serve.before((params)=>{
-	console.log("¡Calling");
-});
-
-const unAfter  =  serve.after((params)=>{
-	console.log("Called!");
-});
-```
-
-> These own methods of the command, return a function that serves to unlink the event of these functions.
-
 # Execution
 
 Everything seems to be very comfortable to implement and understand, but how do we call our command?
 
 ```js
 
-const serve  =  Command("serve");
+const serve  =  new Command({...});
 
 serve.exec(["--port",  8080,  "--routes",  "/home",  "/dashboard",  "/profile /configs"]);
 // or
 serve.exec( process.argv.slice(2)  );
 ```
-
-# Statics
-
-The command module has static functions.
-
-## find(name: string | Function): Command
-
->  Find command with name or iterator.
-
-```js
-Command.find("serve").exec([])
-```
-
-## help(): never
-
->  Print all comands and usage in console.
-```js
-serve.exec(["-h"]);  // Help of serve.
-Command.help();  // Help of all commands.
-```
-
 
 <hr/>
 <div  style="text-align:center;margin-top:50px;">

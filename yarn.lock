@@ -2,10 +2,15 @@
 # yarn lockfile v1
 
 
+"@arcaelas/utils@^1.21.0":
+  version "1.21.0"
+  resolved "https://registry.yarnpkg.com/@arcaelas/utils/-/utils-1.21.0.tgz#b82c2ca0c7c94740ae84c75710cc8feffbcabec4"
+  integrity sha512-hpIbbDcIEQ2yXicyJBxDjc+S3h0yFddY8N9pZUlUTz8HONrS0dFTCgQv2nem36b943egBKSfIWtllU+KgrKY2w==
+
 "@types/node@^16.11.11":
-  version "16.11.60"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.60.tgz#a1fbca80c18dd80c8783557304cdb7d55ac3aff5"
-  integrity sha512-kYIYa1D1L+HDv5M5RXQeEu1o0FKA6yedZIoyugm/MBPROkLpX4L7HRxMrPVyo8bnvjpW/wDlqFNGzXNMb7AdRw==
+  version "16.18.23"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.18.23.tgz#b6e934fe427eb7081d0015aad070acb3373c3c90"
+  integrity sha512-XAMpaw1s1+6zM+jn2tmw8MyaRDIJfXxqmIQIS0HfoGYPuf7dUWeiUKopwq13KFX9lEp1+THGtlaaYx39Nxr58g==
 
 colors@^1.4.0:
   version "1.4.0"
