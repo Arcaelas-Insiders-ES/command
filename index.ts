@@ -1,20 +1,8 @@
 import 'colors';
 import type { Noop, IObject } from '@arcaelas/utils'
 
-type Inmmutables<T = never> = string | number | boolean | undefined | (
-    T extends boolean ? Inmmutables[] : undefined
-)
-
-type TArguments<T extends IArguments = IArguments> = {
-    [K in keyof T]?: ReturnType<
-        T[K] extends IObject ? (
-            T[K]["type"] extends Noop ? T[K]["type"] : ()=>T[K]["value"]
-        ) : ()=>T[K]
-    >
-}
-
-type IArguments<T extends IObject = IObject> = {
-    [K in keyof T]: Inmmutables<boolean> | {
+type IArguments<O extends IObject = IObject> = {
+    [K in keyof O]: string | number | boolean | {
         /**
          * @description
          * Short description about this option to show when help command is run on this command.
@@ -27,17 +15,33 @@ type IArguments<T extends IObject = IObject> = {
         type?: Noop
         /**
          * @description
-         * Defult value to use when argument list dont have any value for this argument.
-         */
-        value?: Inmmutables<boolean>
-        /**
-         * @description
          * Statics props can't be change
          */
-        static?: Inmmutables<boolean>
+        static?: string | number | boolean | null
+        /**
+         * @description
+         * Defult value to use when argument list dont have any value for this argument.
+         */
+        value?: string | number | boolean | null
     }
 }
 
+type TArguments<T extends IArguments = IArguments> = {
+    [K in keyof T]: ReturnType<
+        T[K] extends Noop ? T[K] : (
+            T[K] extends IObject ? (
+                T[K]["type"] extends Noop ? T[K]["type"] : (
+                    T[K]["static"] extends undefined ? ()=>T[K]["value"] : ()=>T[K]["static"]
+                )
+            ) : ()=>T[K]
+        )
+    >
+}
+
+
+type Inmmutables<T = never> = string | number | boolean | undefined | (
+    T extends boolean ? Inmmutables[] : undefined
+)
 
 interface IOptions<A extends IArguments = IArguments> {
     /**
@@ -125,7 +129,7 @@ export default class Command<A extends IArguments = IArguments> {
                 if( this.params[ last ].type!==Array) last = undefined
             }
         }
-        const proxy = new Proxy({}, {
+        const proxy = new Proxy({} as TArguments<A>, {
             get: (_,k)=> this.params[ k ]?.value,
         })
         return this.options.action(proxy, argv as string[])
