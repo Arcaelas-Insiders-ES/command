@@ -1,77 +1,85 @@
 import 'colors';
 import type { Noop, IObject } from '@arcaelas/utils'
 
-type IArguments<O extends IObject = IObject> = {
-    [K in keyof O]: string | number | boolean | {
-        /**
-         * @description
-         * Short description about this option to show when help command is run on this command.
-         */
-        description?: string
-        /** 
-         * @description
-         * Function to parse value from argument list.
-         */
-        type?: Noop
-        /**
-         * @description
-         * Statics props can't be change
-         */
-        static?: string | number | boolean | null
-        /**
-         * @description
-         * Defult value to use when argument list dont have any value for this argument.
-         */
-        value?: string | number | boolean | null
+
+
+declare global {
+    namespace Arcaelas {
+        type IArguments<O extends IObject = IObject> = {
+            [K in keyof O]: string | number | boolean | {
+                /**
+                 * @description
+                 * Short description about this option to show when help command is run on this command.
+                 */
+                description?: string
+                /** 
+                 * @description
+                 * Function to parse value from argument list.
+                 */
+                type?: Noop
+                /**
+                 * @description
+                 * Statics props can't be change
+                 */
+                static?: string | number | boolean | null
+                /**
+                 * @description
+                 * Defult value to use when argument list dont have any value for this argument.
+                 */
+                value?: string | number | boolean | null
+            }
+        }
+        
+        type TArguments<T extends IArguments = IArguments> = {
+            [K in keyof T]: ReturnType<
+                T[K] extends Noop ? T[K] : (
+                    T[K] extends IObject ? (
+                        T[K]["type"] extends Noop ? T[K]["type"] : (
+                            T[K]["static"] extends undefined ? ()=>T[K]["value"] : ()=>T[K]["static"]
+                        )
+                    ) : ()=>T[K]
+                )
+            >
+        }
+        
+        type Inmmutables<T = never> = string | number | boolean | undefined | (
+            T extends boolean ? Inmmutables[] : undefined
+        )
+        
+        interface IOptions<A extends IArguments = IArguments> {
+            /**
+             * @deprecated
+             * @description
+             * Other names you want to use to access this command.
+             * @example
+             * command({
+             *  alias: ["dev", "run", "serve"]
+             * })
+             * command.exec("dev", ...args)
+             */
+            alias?: string[]
+            /**
+             * @description
+             * Short description about this command to show on help command run.
+             */
+            usage?: string
+            /**
+             * @description
+             * List of arguments that will be passed to the command from the execution line.
+             * NOTE: Each argument will be processed before the command is executed. 
+             */
+            arguments?: A
+            action(options: TArguments<A>, argv: string[]): void
+        }
     }
 }
 
-type TArguments<T extends IArguments = IArguments> = {
-    [K in keyof T]: ReturnType<
-        T[K] extends Noop ? T[K] : (
-            T[K] extends IObject ? (
-                T[K]["type"] extends Noop ? T[K]["type"] : (
-                    T[K]["static"] extends undefined ? ()=>T[K]["value"] : ()=>T[K]["static"]
-                )
-            ) : ()=>T[K]
-        )
-    >
-}
 
 
-type Inmmutables<T = never> = string | number | boolean | undefined | (
-    T extends boolean ? Inmmutables[] : undefined
-)
-
-interface IOptions<A extends IArguments = IArguments> {
-    /**
-     * @deprecated
-     * @description
-     * Other names you want to use to access this command.
-     * @example
-     * command({
-     *  alias: ["dev", "run", "serve"]
-     * })
-     * command.exec("dev", ...args)
-     */
-    alias?: string[]
-    /**
-     * @description
-     * Short description about this command to show on help command run.
-     */
-    usage?: string
-    /**
-     * @description
-     * List of arguments that will be passed to the command from the execution line.
-     * NOTE: Each argument will be processed before the command is executed. 
-     */
-    arguments?: A
-    action(options: TArguments<A>, argv: string[]): void
-}
 
 
-export default interface Command<A extends IArguments = IArguments> {
-    new (options: IOptions<A>)
+export default interface Command<A extends Arcaelas.IArguments = Arcaelas.IArguments> {
+    new (options: Arcaelas.IOptions<A>)
 
     /**
      * @description
@@ -90,13 +98,13 @@ export default interface Command<A extends IArguments = IArguments> {
      * start.exec(["--port 8080"])
      * start.exec(["--port", "8080"])
      */
-    exec(...args: Array<Inmmutables<boolean>>): void
+    exec(...args: Array<Arcaelas.Inmmutables<boolean>>): void
 }
 
 
-export default class Command<A extends IArguments = IArguments> {
+export default class Command<A extends Arcaelas.IArguments = Arcaelas.IArguments> {
     private params: IObject = {}
-    constructor(private options: IOptions<A>) {
+    constructor(private options: Arcaelas.IOptions<A>) {
         options.arguments ??= {} as any
         for(const key in options.arguments){
             const value: IObject = typeof (options.arguments[ key ]??false)!=='object'||Array.isArray(options.arguments[key])
@@ -118,7 +126,7 @@ export default class Command<A extends IArguments = IArguments> {
         }
     }
 
-    async exec(...argv: Inmmutables<boolean>[]){
+    async exec(...argv: Arcaelas.Inmmutables<boolean>[]){
         argv = argv.flat(Infinity).map(e=>String(e).trim()).filter(Boolean)
         let last
         for(const k of argv as string[]){
@@ -129,7 +137,7 @@ export default class Command<A extends IArguments = IArguments> {
                 if( this.params[ last ].type!==Array) last = undefined
             }
         }
-        const proxy = new Proxy({} as TArguments<A>, {
+        const proxy = new Proxy({} as Arcaelas.TArguments<A>, {
             get: (_,k)=> this.params[ k ]?.value,
         })
         return this.options.action(proxy, argv as string[])
@@ -149,5 +157,5 @@ export default class Command<A extends IArguments = IArguments> {
 }
 
 
-export const command = <A extends IArguments = IArguments>(options: IOptions<A>): Command<A>=>
+export const command = <A extends Arcaelas.IArguments = Arcaelas.IArguments>(options: Arcaelas.IOptions<A>): Command<A>=>
     new Command(options)
