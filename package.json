@@ -1,12 +1,13 @@
 {
   "private": true,
   "license": "GNU",
-  "version": "1.23.0",
+  "version": "2.0.0",
   "main": "lib/index.js",
   "name": "@arcaelas/command",
   "description": "If you are one of those who like to use terminals, you can create your own native commands using \"command\".",
   "scripts": {
     "start": "tsc --watch",
+    "commit":"npm version minor && npm publish --access=public",
     "prepublishOnly": "esbuild ./src --bundle --allow-overwrite --platform=node --outdir=lib --tsconfig=tsconfig.json",
     "postpublish": "rm -rf lib"
   },
