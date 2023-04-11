@@ -27,7 +27,13 @@ type CommandOptionsArguments<T extends IObject = IObject> = {
 }
 
 type CommandOptionsActionOptions<T extends CommandOptionsArguments = CommandOptionsArguments> = {
-    [K in keyof T]: T[K]
+    [K in keyof T]: T[K] extends Noop ? ReturnType<T[K]> : (
+        T[K] extends IObject ? (
+            T[K]["type"] extends Noop ? ReturnType<T[K]["type"]> : (
+                T[K]["static"] extends never ? T[K]["value"] : T[K]["static"]
+            )
+        ) : T[K]
+    )
 }
 
 interface CommandOptions<T extends CommandOptionsArguments = CommandOptionsArguments> {
