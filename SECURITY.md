@@ -3,8 +3,8 @@
 This document outlines security procedures and general policies for the `standard`
 project.
 
-  * [Reporting a Bug](https://github.com/arcaelas/arcaelas/issues)
-  * [Read Wiki - BETA](https://github.com/arcaelas/arcaelas/wiki)
+  * [Reporting a Bug](https://github.com/arcaelas/command/issues)
+  * [Read Wiki - BETA](https://github.com/arcaelas/command/wiki)
 
 ## Reporting a Bug
 
