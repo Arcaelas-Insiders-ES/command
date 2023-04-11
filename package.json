@@ -1,12 +1,14 @@
 {
+  "private": true,
+  "license": "GNU",
   "version": "1.23.0",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "name": "@arcaelas/command",
   "description": "If you are one of those who like to use terminals, you can create your own native commands using \"command\".",
   "scripts": {
     "start": "tsc --watch",
-    "prepublishOnly": "tsc && npm version minor",
-    "commit": "npm publish --access=public && rm -rf ./src"
+    "prepublishOnly": "esbuild ./src --bundle --allow-overwrite --platform=node --outdir=lib --tsconfig=tsconfig.json",
+    "postpublish": "rm -rf lib"
   },
   "repository": {
     "type": "git",
@@ -23,19 +25,19 @@
     "logger"
   ],
   "author": {
-    "name": "Alejandro Reyes",
-    "email": "arcaelas.reyes@gmail.com"
+    "name": "Arcaelas Insiders",
+    "email": "community@arcaelas.com",
+    "url": "https://www.github.com/arcaelas"
   },
-  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/arcaelas/arcaelas/issues"
+    "url": "https://www.github.com/arcaelas/command/issues"
   },
-  "homepage": "https://github.com/arcaelas/arcaelas#readme",
-  "dependencies": {
-    "colors": "^1.4.0"
-  },
+  "homepage": "https://www.github.com/arcaelas/command#readme",
+  "dependencies": {},
   "devDependencies": {
     "@arcaelas/utils": "^1.21.0",
-    "@types/node": "^16.11.11"
+    "@types/node": "^16.11.11",
+    "colors": "^1.4.0",
+    "esbuild": "^0.17.16"
   }
 }
