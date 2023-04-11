@@ -8,7 +8,7 @@
   "scripts": {
     "start": "tsc --watch",
     "commit": "npm version minor && npm publish --access=public",
-    "prepublishOnly": "esbuild ./src --bundle --allow-overwrite --platform=node --outdir=lib --tsconfig=tsconfig.json",
+    "prepublishOnly": "esbuild ./src --bundle --allow-overwrite --platform=node --outdir=lib && tsc --emitDeclarationOnly --outDir lib",
     "postpublish": "rm -rf lib"
   },
   "repository": {
@@ -28,12 +28,12 @@
   "author": {
     "name": "Arcaelas Insiders",
     "email": "community@arcaelas.com",
-    "url": "https://www.github.com/arcaelas"
+    "url": "https://github.com/arcaelas"
   },
   "bugs": {
-    "url": "https://www.github.com/arcaelas/command/issues"
+    "url": "https://github.com/arcaelas/command/issues"
   },
-  "homepage": "https://www.github.com/arcaelas/command#readme",
+  "homepage": "https://github.com/arcaelas/command#readme",
   "dependencies": {},
   "devDependencies": {
     "@arcaelas/utils": "^1.21.0",
