@@ -1,71 +1,73 @@
 import 'colors';
 import type { Noop, IObject } from '@arcaelas/utils'
 
-type CommandOptionsArguments<T extends IObject = IObject> = {
-    [K in keyof T]: string | number | boolean | Noop | {
+declare global {
+    type CommandOptionsArguments<T extends IObject = IObject> = {
+        [K in keyof T]: string | number | boolean | Noop | {
+            /**
+             * @description
+             * Short description about this option to show when help command is run on this command.
+             */
+            description?: string
+            /** 
+             * @description
+             * Function to parse value from argument list.
+             */
+            type?: Noop
+            /**
+             * @description
+             * Statics props can't be change
+             */
+            static?: string | number | boolean | null
+            /**
+             * @description
+             * Defult value to use when argument list dont have any value for this argument.
+             */
+            value?: string | number | boolean | null
+        }
+    }
+
+    type CommandOptionsActionOptions<T extends CommandOptionsArguments = CommandOptionsArguments> = {
+        [K in keyof T]: ReturnType<
+            T[K] extends Noop ? T[K] : (
+                T[K] extends IObject ? (
+                    T[K]["type"] extends Noop ? T[K]["type"] : (
+                        T[K]["static"] extends undefined ? () => T[K]["value"] : () => T[K]["static"]
+                    )
+                ) : () => T[K]
+            )
+        >
+    }
+
+    interface CommandOptions<T extends CommandOptionsArguments = CommandOptionsArguments> {
+        /**
+         * @deprecated
+         * @description
+         * Other names you want to use to access this command.
+         * @example
+         * command({
+         *  alias: ["dev", "run", "serve"]
+         * })
+         * command.exec("dev", ...args)
+         */
+        alias?: string[]
         /**
          * @description
-         * Short description about this option to show when help command is run on this command.
+         * Short description about this command to show on help command run.
          */
-        description?: string
-        /** 
-         * @description
-         * Function to parse value from argument list.
-         */
-        type?: Noop
+        usage?: string
         /**
          * @description
-         * Statics props can't be change
+         * List of arguments that will be passed to the command from the execution line.
+         * NOTE: Each argument will be processed before the command is executed. 
          */
-        static?: string | number | boolean | null
-        /**
-         * @description
-         * Defult value to use when argument list dont have any value for this argument.
-         */
-        value?: string | number | boolean | null
+        arguments?: T
+        action(options: CommandOptionsActionOptions<T>, argv: string[]): void
     }
 }
 
-type CommandOptionsActionOptions<T extends CommandOptionsArguments = CommandOptionsArguments> = {
-    [K in keyof T]: ReturnType<
-        T[K] extends Noop ? T[K] : (
-            T[K] extends IObject ? (
-                T[K]["type"] extends Noop ? T[K]["type"] : (
-                    T[K]["static"] extends undefined ? () => T[K]["value"] : () => T[K]["static"]
-                )
-            ) : () => T[K]
-        )
-    >
-}
-
-interface CommandOptions<T extends CommandOptionsArguments = CommandOptionsArguments> {
-    /**
-     * @deprecated
-     * @description
-     * Other names you want to use to access this command.
-     * @example
-     * command({
-     *  alias: ["dev", "run", "serve"]
-     * })
-     * command.exec("dev", ...args)
-     */
-    alias?: string[]
-    /**
-     * @description
-     * Short description about this command to show on help command run.
-     */
-    usage?: string
-    /**
-     * @description
-     * List of arguments that will be passed to the command from the execution line.
-     * NOTE: Each argument will be processed before the command is executed. 
-     */
-    arguments?: T
-    action(options: CommandOptionsActionOptions<T>, argv: string[]): void
-}
-
 export default interface Command<T extends CommandOptionsArguments = CommandOptionsArguments> {
-    new (options: CommandOptions<T>): any
+    new(options: CommandOptions<T>): any
 
     /**
      * @description
@@ -87,15 +89,14 @@ export default interface Command<T extends CommandOptionsArguments = CommandOpti
     exec(...argv: Array<string | string[]>): any
 }
 
-
 export default class Command<T extends CommandOptionsArguments = CommandOptionsArguments> {
     private params: IObject = {}
     constructor(private options: CommandOptions<T>) {
         options.arguments ??= {} as any
         for (const key in options.arguments) {
-            const value = typeof options.arguments[ key ] === "function" ? { type: options.arguments } : (
-                typeof (options.arguments[key]??false) !== "object" || Array.isArray(options.arguments[key])
-                    ? { value: options.arguments[key] } : options.arguments[ key ]
+            const value = typeof options.arguments[key] === "function" ? { type: options.arguments } : (
+                typeof (options.arguments[key] ?? false) !== "object" || Array.isArray(options.arguments[key])
+                    ? { value: options.arguments[key] } : options.arguments[key]
             ) as IObject
             this.params[key] = {
                 value: value?.static ?? value?.value ?? null,
