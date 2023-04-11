@@ -1,5 +1,5 @@
 {
-  "private": true,
+  "private": false,
   "license": "GNU",
   "version": "2.2.0",
   "main": "lib/index.js",
