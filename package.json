@@ -8,7 +8,7 @@
   "scripts": {
     "start": "tsc --watch",
     "commit": "npm version minor && npm publish --access=public",
-    "prepublishOnly": "esbuild ./src --outdir=lib --outfile=index.js --bundle --allow-overwrite --platform=node && tsc --emitDeclarationOnly --outDir lib --outFile index.d.ts",
+    "prepublishOnly": "esbuild ./src --outfile=lib/index.js --bundle --allow-overwrite --platform=node && tsc --emitDeclarationOnly --outDir lib",
     "postpublish": "rm -rf lib"
   },
   "repository": {
