@@ -7,8 +7,8 @@
   "description": "If you are one of those who like to use terminals, you can create your own native commands using \"command\".",
   "scripts": {
     "start": "tsc --watch",
-    "commit": "npm version minor && npm publish --access=public",
-    "prepublishOnly": "esbuild ./src --outfile=lib/index.js --bundle --allow-overwrite --platform=node && tsc --emitDeclarationOnly --outDir lib",
+    "commit": "npm publish --access=public",
+    "prepublishOnly": "tsc && npm version minor",
     "postpublish": "rm -rf lib"
   },
   "repository": {
