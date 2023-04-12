@@ -47,7 +47,7 @@ type ParseArguments<T extends CommandArguments = CommandArguments> = {
     [K in keyof T]: T[K] extends Noop ? ReturnType<T[K]> : (
         T[K] extends IObject<Noop> ? (
             T[K]["type"] extends Noop ? ReturnType<T[K]["type"]> : (
-                T[K]["static"] extends never ? T[K]["value"] : T[K]["static"]
+                T[K]["static"] extends undefined ? T[K]["value"] : T[K]["static"]
             )
         ) : T[K]
     )
