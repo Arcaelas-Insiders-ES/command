@@ -3,9 +3,9 @@
 
 
 "@arcaelas/utils@^1.21.0":
-  version "1.21.0"
-  resolved "https://registry.yarnpkg.com/@arcaelas/utils/-/utils-1.21.0.tgz#b82c2ca0c7c94740ae84c75710cc8feffbcabec4"
-  integrity sha512-hpIbbDcIEQ2yXicyJBxDjc+S3h0yFddY8N9pZUlUTz8HONrS0dFTCgQv2nem36b943egBKSfIWtllU+KgrKY2w==
+  version "1.24.0"
+  resolved "https://registry.yarnpkg.com/@arcaelas/utils/-/utils-1.24.0.tgz#b54221cfc39615c41977e5e44fda5b8294bf5a5b"
+  integrity sha512-x/wjZu4bzwztAnH7q7Fc8GJinOOpa9TKY+dhiRLIb/tJV68jS+eM9+Lrw78MhoKFtjrmp3rrQplqmeT34nlyJw==
 
 "@esbuild/android-arm64@0.17.16":
   version "0.17.16"
