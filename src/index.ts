@@ -3,8 +3,33 @@ import type { Noop, IObject } from '@arcaelas/utils'
 
 type Inmutables = string | number | boolean
 
+type CommandArguments = {
+    [K: string | number]: Inmutables | Noop<string, Inmutables> | {
+        /**
+         * @description
+         * Short description about this option to show when help command is run on this command.
+         */
+        description?: string
+        /** 
+         * @description
+         * Function to parse value from argument list.
+         */
+        type?: Noop<string, Inmutables>
+        /**
+         * @description
+         * Statics props can't be change
+         */
+        static?: Inmutables
+        /**
+         * @description
+         * Defult value to use when argument list dont have any value for this argument.
+         */
+        value?: Inmutables
+    }
+}
 
-interface CommandOptions {
+
+interface CommandOptions<T extends CommandArguments = CommandArguments> {
     /**
      * @description
      * Short description about this command to show on help command run.
@@ -15,35 +40,12 @@ interface CommandOptions {
      * List of arguments that will be passed to the command from the execution line.
      * NOTE: Each argument will be processed before the command is executed. 
      */
-    arguments?: {
-        [K: string | number]: Inmutables | Noop<string, Inmutables> | {
-            /**
-             * @description
-             * Short description about this option to show when help command is run on this command.
-             */
-            description?: string
-            /** 
-             * @description
-             * Function to parse value from argument list.
-             */
-            type?: Noop<string, Inmutables>
-            /**
-             * @description
-             * Statics props can't be change
-             */
-            static?: Inmutables
-            /**
-             * @description
-             * Defult value to use when argument list dont have any value for this argument.
-             */
-            value?: Inmutables
-        }
-    }
-    action(options: ParseArguments<this>, argv: string[]): void
+    arguments?: T
+    action(options: ParseArguments<T>, argv: string[]): void
 }
 
 
-type ParseArguments<O extends CommandOptions = CommandOptions, T extends CommandOptions["arguments"] = O["arguments"]> = {
+type ParseArguments<T extends CommandArguments = CommandArguments> = {
     [K in keyof T]: T[K] extends Noop ? ReturnType<T[K]> : (
         T[K] extends IObject<Noop> ? (
             T[K]["type"] extends Noop ? ReturnType<T[K]["type"]> : (
@@ -55,16 +57,16 @@ type ParseArguments<O extends CommandOptions = CommandOptions, T extends Command
 
 
 export default class Command {
-    private params:IObject<Noop | Function> = {}
+    private params: IObject<Noop | Function> = {}
 
     constructor(private options: CommandOptions) {
         options.arguments ??= {}
-        for(const key in options.arguments){
+        for (const key in options.arguments) {
             const value: IObject<Noop> = typeof options.arguments[key] === "function" ? { type: options.arguments[key] } : (
-                typeof(options.arguments[key]??false)!=="object" || Array.isArray(options.arguments[key])
+                typeof (options.arguments[key] ?? false) !== "object" || Array.isArray(options.arguments[key])
                     ? { value: options.arguments[key] } : options.arguments[key] as IObject
             )
-            this.params[ key ] = {
+            this.params[key] = {
                 value: value?.static ?? value.value ?? false,
                 description: value?.description ?? 'N/A',
                 type: value?.type ?? value.value?.constructor ?? (v => v),
@@ -124,5 +126,3 @@ export default class Command {
         }
     }
 }
-
-
