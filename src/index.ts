@@ -68,14 +68,14 @@ export default class Command<T extends CommandArguments = CommandArguments, O ex
                 value: value?.static ?? value.value ?? false,
                 description: value?.description ?? 'N/A',
                 type: value?.type ?? value.value?.constructor ?? (v => v),
-                set(v) {
+                async set(v) {
                     if (value.static) return
                     if (this.type === Array) {
                         this.value = [].concat(v)
                         this.set = v => this.value.push(...[].concat(v))
                         return
                     }
-                    this.value = this.type(v)
+                    this.value = await this.type(v)
                 }
             }
         }
@@ -99,7 +99,7 @@ export default class Command<T extends CommandArguments = CommandArguments, O ex
             let [, arg] = k.match(/^--([a-z][\w-_]{2,})/i) || []
             if (arg) last = arg
             else if (last in this.params) {
-                this.params[last].set(k)
+                await this.params[last].set(k)
                 if (this.params[last].type !== Array) last = undefined
             }
         }
