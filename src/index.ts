@@ -22,7 +22,7 @@ type CommandArguments = {
         static?: Inmutables
         /**
          * @description
-         * Defult value to use when argument list dont have any value for this argument.
+         * Defult value to use when argument list dont receive value for this argument.
          */
         value?: Inmutables
     }
@@ -40,7 +40,7 @@ interface CommandOptions<T extends CommandArguments = CommandArguments> {
      * NOTE: Each argument will be processed before the command is executed. 
      */
     arguments?: T
-    action(options: ParseArguments<T>, argv: string[]): void
+    action(options: ParseArguments<T>, argv: string[]): any | Promise<any>
 }
 
 type ParseArguments<T extends CommandArguments = CommandArguments> = {
@@ -54,11 +54,11 @@ type ParseArguments<T extends CommandArguments = CommandArguments> = {
 }
 
 
-export default class Command<T extends CommandArguments = CommandArguments> {
-    private params: IObject<Noop | Function> = {}
+export default class Command<T extends CommandArguments = CommandArguments, O extends CommandOptions<T> = CommandOptions<T>> {
+    private params: IObject<any> = {}
 
-    constructor(private options: CommandOptions<T>) {
-        options.arguments ??= {} as any
+    constructor(private options: O) {
+        options.arguments ??= {} as T
         for (const key in options.arguments) {
             const value: IObject<Noop> = typeof options.arguments[key] === "function" ? { type: options.arguments[key] } : (
                 typeof (options.arguments[key] ?? false) !== "object" || Array.isArray(options.arguments[key])
@@ -92,21 +92,21 @@ export default class Command<T extends CommandArguments = CommandArguments> {
      * start.exec(["--port 8080"])
      * start.exec(["--port", "8080"])
      */
-    async exec(...argv: Array<string | string[]>) {
+    async exec(...argv: Array<string | string[]>): Promise<Awaited<ReturnType<O["action"]>>> {
         argv = argv.flat(Infinity).map(e => String(e).trim()).filter(Boolean)
         let last
         for (const k of argv as string[]) {
             let [, arg] = k.match(/^--([a-z][\w-_]{2,})/i) || []
             if (arg) last = arg
             else if (last in this.params) {
-                (this.params[last] as any).set(k)
-                if ((this.params[last] as any).type !== Array) last = undefined
+                this.params[last].set(k)
+                if (this.params[last].type !== Array) last = undefined
             }
         }
-        const proxy = new Proxy({}, {
-            get: (_, k) => (this.params[k] as any)?.value,
+        const proxy = new Proxy({} as ParseArguments<T>, {
+            get: (_, k) => (this.params[k])?.value,
         })
-        return this.options.action(proxy as any, argv as string[])
+        return this.options.action(proxy, argv as string[])
     }
 
     /**
@@ -118,7 +118,7 @@ export default class Command<T extends CommandArguments = CommandArguments> {
         console.log("%s", this.options.usage || 'N/A')
         console.log("arguments:".yellow.bold)
         for (let k in this.params) {
-            let option: any = this.params[k];
+            let option = this.params[k];
             console.log(`   --${k}`);
             console.log(`       %s`, option.description);
         }
