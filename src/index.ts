@@ -4,7 +4,7 @@ import type { Noop, IObject } from '@arcaelas/utils'
 type Inmutables = string | number | boolean
 
 type CommandArguments = {
-    [K: string | number]: Inmutables | Noop<string, Inmutables> | {
+    [K: string]: Inmutables | Noop<string, Inmutables> | {
         /**
          * @description
          * Short description about this option to show when help command is run on this command.
@@ -28,7 +28,6 @@ type CommandArguments = {
     }
 }
 
-
 interface CommandOptions<T extends CommandArguments = CommandArguments> {
     /**
      * @description
@@ -44,7 +43,6 @@ interface CommandOptions<T extends CommandArguments = CommandArguments> {
     action(options: ParseArguments<T>, argv: string[]): void
 }
 
-
 type ParseArguments<T extends CommandArguments = CommandArguments> = {
     [K in keyof T]: T[K] extends Noop ? ReturnType<T[K]> : (
         T[K] extends IObject<Noop> ? (
@@ -56,11 +54,11 @@ type ParseArguments<T extends CommandArguments = CommandArguments> = {
 }
 
 
-export default class Command {
+export default class Command<T extends CommandArguments = CommandArguments> {
     private params: IObject<Noop | Function> = {}
 
-    constructor(private options: CommandOptions) {
-        options.arguments ??= {}
+    constructor(private options: CommandOptions<T>) {
+        options.arguments ??= {} as any
         for (const key in options.arguments) {
             const value: IObject<Noop> = typeof options.arguments[key] === "function" ? { type: options.arguments[key] } : (
                 typeof (options.arguments[key] ?? false) !== "object" || Array.isArray(options.arguments[key])
