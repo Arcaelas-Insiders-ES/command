@@ -3,9 +3,9 @@
 
 
 "@arcaelas/utils@^1.24.0":
-  version "1.24.0"
-  resolved "https://registry.yarnpkg.com/@arcaelas/utils/-/utils-1.24.0.tgz#b54221cfc39615c41977e5e44fda5b8294bf5a5b"
-  integrity sha512-x/wjZu4bzwztAnH7q7Fc8GJinOOpa9TKY+dhiRLIb/tJV68jS+eM9+Lrw78MhoKFtjrmp3rrQplqmeT34nlyJw==
+  version "1.26.0"
+  resolved "https://registry.yarnpkg.com/@arcaelas/utils/-/utils-1.26.0.tgz#6aae49acdef30a8fe18cae015411e6f553871f35"
+  integrity sha512-Riic/9EXmDsosZw75bZXGrQjPSs/0/hbESXO5zyhYUFEGPMAXO8zrP7iFbjQbNkER+BjNr+sZDLQRqmMmDk2Sw==
 
 "@types/node@^16.11.11":
   version "16.18.23"
