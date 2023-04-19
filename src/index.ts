@@ -1,8 +1,8 @@
 import 'colors';
-import type { Noop, IObject } from "@arcaelas/utils"
+import type { IObject, Noop } from "@arcaelas/utils"
 
 type Inmutables = string | number | boolean
-type ParseArguments<T extends CommandArguments = CommandArguments> = {
+type ParseArguments<T extends CommandArguments> = {
     [K in keyof T]: T[K] extends Noop ? ReturnType<T[K]> : (
         T[K] extends IObject<Noop> ? (
             T[K]["type"] extends Noop ? ReturnType<T[K]["type"]> : (
@@ -12,7 +12,7 @@ type ParseArguments<T extends CommandArguments = CommandArguments> = {
     )
 }
 
-interface CommandArguments {
+interface CommandArguments{
     [K: string]: Inmutables | Noop<string, Inmutables> | {
         /**
          * @description
@@ -37,7 +37,7 @@ interface CommandArguments {
     }
 }
 
-interface CommandOptions<T extends CommandArguments = CommandArguments, R extends any = any> {
+interface CommandOptions<R extends any, T extends CommandArguments> {
     /**
      * @description
      * Short description about this command to show on help command run.
@@ -49,14 +49,44 @@ interface CommandOptions<T extends CommandArguments = CommandArguments, R extend
      * NOTE: Each argument will be processed before the command is executed. 
      */
     arguments?: T
-    action: Noop<[ options: ParseArguments<T> , argv: string[] ], R>
+    action(options: ParseArguments<T>, argv: string[]): R | Promise<R>
 }
 
-export default class Command<R extends any = any, T extends CommandArguments = CommandArguments> {
+export default interface Command<R = any, T extends CommandArguments = CommandArguments> extends Function {
+    
+    new (options: CommandOptions<R, T>): this
+    (args: string[]): Promise<Awaited<
+        ConstructorParameters<this> extends [ infer P, ...any ] ? (
+            P extends CommandOptions<any, any> ? ReturnType<P["action"]> : any
+        ) : any
+    >>
 
-    private params: IObject<any> = {}
+    /**
+     * @description
+     * Run the command with a given list of arguments that will be formatted according to the argument configuration.
+     * @example
+     * const start = new Command("serve", {...})
+     * 
+     * start.exec("--port 8080")
+     * start.exec("--port", "8080")
+     * start.exec(["--port 8080"])
+     * start.exec(["--port", "8080"])
+     */
+    exec(argv: string[]): ReturnType<this>
 
-    constructor(public options: CommandOptions<T, R>) {
+    /**
+     * @description
+     * Show command usage and arguments descriptions in console.
+     */
+    help(): void
+}
+
+
+export default class Command<R = any, T extends CommandArguments = CommandArguments> extends Function {
+
+    protected params: IObject<any> = {}
+    constructor(private options: CommandOptions<R, T>) {
+		super("...args", "return this.exec(...args)")
         this.options = { arguments: {} as T, ...options }
         for (const key in this.options.arguments) {
             const value: IObject<Noop> = typeof this.options.arguments[key] === "function" ? { type: this.options.arguments[key] } : (
@@ -78,25 +108,13 @@ export default class Command<R extends any = any, T extends CommandArguments = C
                 }
             }
         }
+        return this.bind( this )
     }
 
-
-
-    /**
-     * @description
-     * Run the command with a given list of arguments that will be formatted according to the argument configuration.
-     * @example
-     * const start = new Command("serve", {...})
-     * 
-     * start.exec("--port 8080")
-     * start.exec("--port", "8080")
-     * start.exec(["--port 8080"])
-     * start.exec(["--port", "8080"])
-     */
-    async exec(...argv: string[]): Promise<R> {
-        argv = argv.flat(Infinity).map(e => String(e).trim()).filter(Boolean)
+    public async exec(...args: string[] | string[][]){
+        args = args.flat(Infinity).map(e => String(e).trim()).filter(Boolean)
         let last
-        for (const k of argv as string[]) {
+        for (const k of args as string[]) {
             let [, arg] = k.match(/^--([a-z][\w-_]{2,})/i) || []
             if (arg) last = arg
             else if (last in this.params) {
@@ -107,14 +125,9 @@ export default class Command<R extends any = any, T extends CommandArguments = C
         const proxy = new Proxy({}, {
             get: (_, k) => (this.params[k])?.value,
         })
-        return this.options.action(proxy as any, argv as string[])
+        return this.options.action(proxy as any, args as string[])
     }
 
-
-    /**
-     * @description
-     * Show command usage and arguments descriptions in console.
-     */
     help() {
         console.log(`Arcaelas Insiders CLI`.green.bold);
         console.log("%s", this.options.usage || 'N/A')
@@ -125,5 +138,4 @@ export default class Command<R extends any = any, T extends CommandArguments = C
             console.log(`       %s`, option.description);
         }
     }
-
 }
