@@ -55,7 +55,7 @@ interface CommandOptions<R extends any, T extends CommandArguments> {
 export default interface Command<R = any, T extends CommandArguments = CommandArguments> extends Function {
     
     new (options: CommandOptions<R, T>): this
-    (args: string[]): Promise<Awaited<
+    (args: ParseArguments<T> | string[]): Promise<Awaited<
         ConstructorParameters<this> extends [ infer P, ...any ] ? (
             P extends CommandOptions<any, any> ? ReturnType<P["action"]> : any
         ) : any
