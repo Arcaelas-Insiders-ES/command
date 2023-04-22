@@ -145,6 +145,17 @@ serve(["--port",  8080,  "--routes",  "/home",  "/dashboard",  "/profile /config
 // or using inherit method
 serve.exec(["--port",  8080,  "--routes",  "/home",  "/dashboard",  "/profile /configs"]);
 
+// or using object
+serve.exec({
+	port: 8080,
+	routes:[
+		"/home",
+		"/dashboard",
+		"/profile",
+		"/configs",
+	]
+});
+
 // You can pass command line arguments
 serve.exec( process.argv.slice(2)  );
 ```
