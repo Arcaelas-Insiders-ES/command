@@ -72,7 +72,8 @@ export default interface Command<R = any, T extends CommandArguments = CommandAr
      * start.exec(["--port 8080"])
      * start.exec(["--port", "8080"])
      */
-    exec(argv: string[]): ReturnType<this>
+    exec(options: ParseArguments<T>): ReturnType<this>
+    exec(...argv: Array<string | string[]>): ReturnType<this>
 
     /**
      * @description
@@ -111,20 +112,24 @@ export default class Command<R = any, T extends CommandArguments = CommandArgume
         return this.bind( this )
     }
 
-    public async exec(...args: string[] | string[][]){
-        args = args.flat(Infinity).map(e => String(e).trim()).filter(Boolean)
-        let last
-        for (const k of args as string[]) {
-            let [, arg] = k.match(/^--([a-z][\w-_]{2,})/i) || []
-            if (arg) last = arg
-            else if (last in this.params) {
-                await this.params[last].set(k)
-                if (this.params[last].type !== Array) last = undefined
+    public async exec(...argv: any){
+        const [ options, ...args ] = argv.flat().map(String).filter(Boolean)
+        if(typeof (options??false) === 'object'){
+            for(const key in options)
+                await this.params[ key ]?.set(options[ key ])
+        }
+        else {
+            let last
+            for (const k of args as string[]) {
+                let [, arg] = k.match(/^--([a-z][\w-_]{2,})/i) || []
+                if (arg) last = arg
+                else if (last in this.params) {
+                    await this.params[last].set(k)
+                    if (this.params[last].type !== Array) last = undefined
+                }
             }
         }
-        const proxy = new Proxy({}, {
-            get: (_, k) => (this.params[k])?.value,
-        })
+        const proxy = new Proxy({}, { get: (_, k) => (this.params[k])?.value })
         return this.options.action(proxy as any, args as string[])
     }
 
