@@ -1,7 +1,7 @@
 {
   "private": false,
   "license": "GNU",
-  "version": "2.24.0",
+  "version": "2.25.0",
   "main": "lib/index.js",
   "name": "@arcaelas/command",
   "description": "If you are one of those who like to use terminals, you can create your own native commands using \"command\".",
