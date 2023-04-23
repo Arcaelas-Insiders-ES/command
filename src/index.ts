@@ -12,7 +12,7 @@ type ParseArguments<T extends CommandArguments> = {
     )
 }
 
-interface CommandArguments{
+interface CommandArguments {
     [K: string]: Inmutables | Noop<string, Inmutables> | {
         /**
          * @description
@@ -52,14 +52,41 @@ interface CommandOptions<R extends any, T extends CommandArguments> {
     action(options: ParseArguments<T>, argv: string[]): R | Promise<R>
 }
 
-export default interface Command<R = any, T extends CommandArguments = CommandArguments> extends Function {
-    
-    new (options: CommandOptions<R, T>): this
-    (args: ParseArguments<T> | string[]): Promise<Awaited<
-        ConstructorParameters<this> extends [ infer P, ...any ] ? (
+export default interface Command<R = any, T extends CommandArguments = CommandArguments> {
+    new(options: CommandOptions<R, T>): this
+    (args: Partial<ParseArguments<T>> | Array<string | string[]>): Promise<Awaited<
+        ConstructorParameters<this> extends [infer P, ...any] ? (
             P extends CommandOptions<any, any> ? ReturnType<P["action"]> : any
         ) : any
     >>
+}
+
+
+export default class Command<R = any, T extends CommandArguments = CommandArguments> extends Function implements Command {
+    
+    protected types: any = {}
+    public options: IObject<any>
+    constructor(options: CommandOptions<R, T>) {
+        super("...args", "return this.exec(...args)")
+        this.options = { arguments:{}, ...options }
+        for(const key in this.options.arguments) {
+            const option = this.options.arguments[ key ] as any
+            this.types[ key ] = {
+                description: option.description,
+                value: option===Array ? [] : (
+                    Array.isArray( option ) ? option : (option.static ?? option.value)
+                ),
+                type: typeof option==='function' ? option : (
+                    Array.isArray( option ) ? Array : (
+                        typeof option==='object' ? (
+                            'static' in option ? ()=>option.static : option.value?.constructor
+                        ) : option?.constructor
+                    )
+                )
+            }
+        }
+        return this
+    }
 
     /**
      * @description
@@ -72,73 +99,45 @@ export default interface Command<R = any, T extends CommandArguments = CommandAr
      * start.exec(["--port 8080"])
      * start.exec(["--port", "8080"])
      */
-    exec(options: ParseArguments<T>): ReturnType<this>
+    exec(options: Partial<ParseArguments<T>>): ReturnType<this>
     exec(...argv: Array<string | string[]>): ReturnType<this>
+    async exec(...argv: any) {
+        const props = {} as IObject
+        const args = argv.flat(Infinity).filter(Boolean) as any[]
+        if(typeof args[0] === 'object')
+            Object.assign(props, args[0])
+        else {
+            let last: string
+            for(const item of args){
+                const [, key] = item.match(/^--([a-z][\w-_]{2,})/i) || []
+                if (key) last = key
+                else if (this.types[ last ]){
+                    props[ last ] = this.types[ last ] === Array
+                        ? [].concat(props[ last ] ?? [], item)
+                            : item
+                }
+            }
+        }
+        for(const key in this.types){
+            props[ key ] = await (key in props ? (
+                this.types[ key ].type === Array
+                    ? [].concat(props[key])
+                    : this.types[ key ].type( props[ key ] )
+            ) : this.types[ key ].value)
+        }
+        return this.options.action(props, args as string[])
+    }
 
     /**
      * @description
      * Show command usage and arguments descriptions in console.
      */
-    help(): void
-}
-
-
-export default class Command<R = any, T extends CommandArguments = CommandArguments> extends Function {
-
-    protected params: IObject<any> = {}
-    constructor(private options: CommandOptions<R, T>) {
-		super("...args", "return this.exec(...args)")
-        this.options = { arguments: {} as T, ...options }
-        for (const key in this.options.arguments) {
-            const value: IObject<Noop> = typeof this.options.arguments[key] === "function" ? { type: this.options.arguments[key] } : (
-                typeof (this.options.arguments[key] ?? false) !== "object" || Array.isArray(this.options.arguments[key])
-                    ? { value: this.options.arguments[key] } : this.options.arguments[key] as IObject
-            )
-            this.params[key] = {
-                value: value?.static ?? value.value ?? false,
-                description: value?.description ?? 'N/A',
-                type: value?.type ?? value.value?.constructor ?? (v => v),
-                async set(v) {
-                    if (value.static) return
-                    if (this.type === Array) {
-                        this.value = [].concat(v)
-                        this.set = v => this.value.push(...[].concat(v))
-                        return
-                    }
-                    this.value = await this.type(v)
-                }
-            }
-        }
-        return this.bind( this )
-    }
-
-    public async exec(...argv: any){
-        const [ options, ...args ] = argv.flat().map(String).filter(Boolean)
-        if(typeof (options??false) === 'object'){
-            for(const key in options)
-                await this.params[ key ]?.set(options[ key ])
-        }
-        else {
-            let last
-            for (const k of args as string[]) {
-                let [, arg] = k.match(/^--([a-z][\w-_]{2,})/i) || []
-                if (arg) last = arg
-                else if (last in this.params) {
-                    await this.params[last].set(k)
-                    if (this.params[last].type !== Array) last = undefined
-                }
-            }
-        }
-        const proxy = new Proxy({}, { get: (_, k) => (this.params[k])?.value })
-        return this.options.action(proxy as any, args as string[])
-    }
-
     help() {
         console.log(`Arcaelas Insiders CLI`.green.bold);
         console.log("%s", this.options.usage || 'N/A')
         console.log("arguments:".yellow.bold)
-        for (let k in this.params) {
-            let option = this.params[k];
+        for (const k in this.types) {
+            const option = this.types[k];
             console.log(`   --${k}`);
             console.log(`       %s`, option.description);
         }
