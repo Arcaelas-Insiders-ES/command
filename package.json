@@ -6,9 +6,10 @@
   "name": "@arcaelas/command",
   "description": "If you are one of those who like to use terminals, you can create your own native commands using \"command\".",
   "scripts": {
+    "test": "jest",
     "start": "tsc --watch",
     "commit": "npm publish --access=public",
-    "prepublishOnly": "tsc && npm version minor",
+    "prepublishOnly": "npm run test && tsc && npm version minor",
     "postpublish": "rm -rf lib"
   },
   "repository": {
@@ -35,10 +36,14 @@
   },
   "homepage": "https://github.com/arcaelas/command#readme",
   "dependencies": {
-    "@arcaelas/utils": "^1.24.0"
+    "@arcaelas/utils": "^1.24.0",
+    "colors": "^1.4.0"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.1",
     "@types/node": "^16.11.11",
-    "colors": "^1.4.0"
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.4"
   }
 }
