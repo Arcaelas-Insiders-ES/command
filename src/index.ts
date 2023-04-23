@@ -27,7 +27,7 @@ type ParseArguments<T extends CommandArguments> = {
 }
 
 interface CommandArguments {
-    [K: string]: Inmutables | Noop<string, Inmutables> | {
+    [K: string]: Inmutables | Noop | {
         /**
          * @description
          * Short description about this option to show when help command is run on this command.
