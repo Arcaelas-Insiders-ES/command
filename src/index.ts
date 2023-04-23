@@ -2,6 +2,15 @@ import 'colors';
 import type { IObject, Noop } from "@arcaelas/utils"
 
 type Inmutables = string | number | boolean
+type ArgumentsObject<T extends CommandArguments> = {
+    [K in keyof T]: T[K] extends Noop ? ( Parameters<T[K]> extends [infer I] ? I : any ) : (
+        T[K] extends IObject<Noop> ? (
+            T[K]["type"] extends Noop ? ReturnType<T[K]["type"]> : (
+                T[K]["static"] extends Inmutables ? T[K]["static"] : T[K]["value"]
+            )
+        ) : T[K]
+    )
+}
 type ParseArguments<T extends CommandArguments> = {
     [K in keyof T]: T[K] extends Noop ? ReturnType<T[K]> : (
         T[K] extends IObject<Noop> ? (
@@ -45,8 +54,8 @@ interface CommandOptions<R extends any, T extends CommandArguments> {
     usage?: string
     /**
      * @description
-     * List of arguments that will be passed to the command from the execution line.
-     * NOTE: Each argument will be processed before the command is executed. 
+     * Props that will be passed to the command from the execution line.
+     * NOTE: Each argument will be processed with "type", before the command is executed. 
      */
     arguments?: T
     action(options: ParseArguments<T>, argv: string[]): R | Promise<R>
@@ -54,7 +63,7 @@ interface CommandOptions<R extends any, T extends CommandArguments> {
 
 export default interface Command<R = any, T extends CommandArguments = CommandArguments> {
     new(options: CommandOptions<R, T>): this
-    (args: Partial<ParseArguments<T>> | Array<string | string[]>): Promise<Awaited<
+    (args: Partial<ArgumentsObject<T>> | Array<string | string[]>): Promise<Awaited<
         ConstructorParameters<this> extends [infer P, ...any] ? (
             P extends CommandOptions<any, any> ? ReturnType<P["action"]> : any
         ) : any
@@ -63,23 +72,23 @@ export default interface Command<R = any, T extends CommandArguments = CommandAr
 
 
 export default class Command<R = any, T extends CommandArguments = CommandArguments> extends Function implements Command {
-    
+
     protected types: any = {}
     public options: IObject<any>
     constructor(options: CommandOptions<R, T>) {
         super("...args", "return this.exec(...args)")
-        this.options = { arguments:{}, ...options }
-        for(const key in this.options.arguments) {
-            const option = this.options.arguments[ key ] as any
-            this.types[ key ] = {
+        this.options = { arguments: {}, ...options }
+        for (const key in this.options.arguments) {
+            const option = this.options.arguments[key] as any
+            this.types[key] = {
                 description: option.description,
-                value: option===Array ? [] : (
-                    Array.isArray( option ) ? option : (option.static ?? option.value)
+                value: option === Array ? [] : (
+                    Array.isArray(option) ? option : (option.static ?? option.value)
                 ),
-                type: typeof option==='function' ? option : (
-                    Array.isArray( option ) ? Array : (
-                        typeof option==='object' ? (
-                            'static' in option ? ()=>option.static : option.value?.constructor
+                type: typeof option === 'function' ? option : (
+                    Array.isArray(option) ? Array : (
+                        typeof option === 'object' ? (
+                            'static' in option ? () => option.static : option.value?.constructor
                         ) : option?.constructor
                     )
                 )
@@ -99,31 +108,31 @@ export default class Command<R = any, T extends CommandArguments = CommandArgume
      * start.exec(["--port 8080"])
      * start.exec(["--port", "8080"])
      */
-    exec(options: Partial<ParseArguments<T>>): ReturnType<this>
+    exec(options: Partial<ArgumentsObject<T>>): ReturnType<this>
     exec(...argv: Array<string | string[]>): ReturnType<this>
     async exec(...argv: any) {
         const props = {} as IObject
         const args = argv.flat(Infinity).filter(Boolean) as any[]
-        if(typeof args[0] === 'object')
+        if (typeof args[0] === 'object')
             Object.assign(props, args[0])
         else {
             let last: string
-            for(const item of args){
+            for (const item of args) {
                 const [, key] = item.match(/^--([a-z][\w-_]{2,})/i) || []
                 if (key) last = key
-                else if (this.types[ last ]){
-                    props[ last ] = this.types[ last ] === Array
-                        ? [].concat(props[ last ] ?? [], item)
-                            : item
+                else if (this.types[last]) {
+                    props[last] = this.types[last] === Array
+                        ? [].concat(props[last] ?? [], item)
+                        : item
                 }
             }
         }
-        for(const key in this.types){
-            props[ key ] = await (key in props ? (
-                this.types[ key ].type === Array
+        for (const key in this.types) {
+            props[key] = await (key in props ? (
+                this.types[key].type === Array
                     ? [].concat(props[key])
-                    : this.types[ key ].type( props[ key ] )
-            ) : this.types[ key ].value)
+                    : this.types[key].type(props[key])
+            ) : this.types[key].value)
         }
         return this.options.action(props, args as string[])
     }
