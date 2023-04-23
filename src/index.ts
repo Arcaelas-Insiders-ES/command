@@ -2,8 +2,13 @@ import 'colors';
 import type { IObject, Noop } from "@arcaelas/utils"
 
 type Inmutables = string | number | boolean
+type InmutableConstructors = StringConstructor | NumberConstructor | BooleanConstructor | ArrayConstructor
 type ArgumentsObject<T extends CommandArguments> = {
-    [K in keyof T]: T[K] extends Noop ? ( Parameters<T[K]> extends [infer I] ? I : any ) : (
+    [K in keyof T]: T[K] extends Noop ? (
+        T[K] extends InmutableConstructors ? ReturnType<T[K]> : (
+            Parameters<T[K]> extends [infer I] ? I : any
+        )
+    ) : (
         T[K] extends IObject<Noop> ? (
             T[K]["type"] extends Noop ? ReturnType<T[K]["type"]> : (
                 T[K]["static"] extends Inmutables ? T[K]["static"] : T[K]["value"]
