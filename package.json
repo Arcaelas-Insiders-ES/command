@@ -8,8 +8,8 @@
   "scripts": {
     "test": "jest",
     "start": "tsc --watch",
-    "commit": "npm publish --access=public",
-    "prepublishOnly": "npm run test && tsc && npm version minor",
+    "commit": "npm run test && npm publish --access=public",
+    "prepublishOnly": "tsc && npm version minor",
     "postpublish": "rm -rf lib"
   },
   "repository": {
