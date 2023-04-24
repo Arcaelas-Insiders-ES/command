@@ -100,13 +100,13 @@ export default class Command<R = any, T extends CommandArguments = CommandArgume
                 value: option === Array ? [] : (
                     Array.isArray(option) ? option : (option?.static ?? option?.value)
                 ),
-                type: typeof option === 'function' ? option : (
+                type: (typeof option === 'function' ? option : (
                     Array.isArray(option) ? Array : (
                         typeof option === 'object' ? (
                             'static' in option ? () => option.static : option?.value?.constructor
                         ) : option?.constructor
                     )
-                )
+                )) ?? (v => v)
             }
         }
         return this
