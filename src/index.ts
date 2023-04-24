@@ -136,7 +136,7 @@ export default class Command<R = any, T extends CommandArguments = CommandArgume
                 const [, key] = item.match(/^--([a-z][\w-_]{2,})/i) || []
                 if (key) last = key
                 else if (this.types[last]) {
-                    props[last] = this.types[last] === Array
+                    props[last] = this.types[last].type === Array
                         ? [].concat(props[last] ?? [], item)
                         : item
                 }
@@ -144,12 +144,11 @@ export default class Command<R = any, T extends CommandArguments = CommandArgume
         }
         for (const key in this.types) {
             console.log('Key: %s, Value: %s, Type: %s', key, this.types[key].value, this.types[key].type)
-
             props[key] = await (key in props ? (
                 this.types[key].type === Array
                     ? [].concat(props[key])
                     : this.types[key].type(props[key])
-            ) : this.types[key].value)
+            ) : this.types[key].value ?? true)
         }
         return this.action(props, args as string[])
     }
