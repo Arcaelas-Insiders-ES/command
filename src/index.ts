@@ -76,7 +76,7 @@ export default interface Command<R = any, T extends CommandArguments = CommandAr
 }
 
 
-export default class Command<R = any, T extends CommandArguments = CommandArguments> extends Function implements Command {
+export default class Command<R = any, T extends CommandArguments = CommandArguments> extends Function {
 
     protected types: any = {}
     public options: IObject<any>

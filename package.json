@@ -1,6 +1,6 @@
 {
   "private": false,
-  "license": "GNU",
+  "license": "ISC",
   "version": "2.30.0",
   "main": "lib/index.js",
   "name": "@arcaelas/command",
