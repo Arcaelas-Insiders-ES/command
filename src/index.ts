@@ -81,13 +81,12 @@ export default interface Command<R = any, T extends CommandArguments = CommandAr
 }
 
 
-export default class Command<R = any, T extends CommandArguments = CommandArguments> extends Function {
+export default class Command<R = any, T extends CommandArguments = CommandArguments> {
 
     protected description: string = "N/A"
     protected types: any = {}
     protected action: Noop = () => { }
     constructor(options: CommandOptions<R, T>) {
-        super("...args", "return this.exec(...args)")
         this.action = options.action
         this.description = options.description
         for (const key in (options.arguments || {})) {
@@ -110,7 +109,7 @@ export default class Command<R = any, T extends CommandArguments = CommandArgume
                 )
             }
         }
-        return this.bind(this)
+        return this
     }
 
     /**

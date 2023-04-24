@@ -139,9 +139,6 @@ Everything seems to be very comfortable to implement and understand, but how do 
 
 const serve  =  new Command({...});
 
-// You can call as Function with arguments values
-serve(["--port",  8080,  "--routes",  "/home",  "/dashboard",  "/profile /configs"]);
-
 // or using inherit method
 serve.exec(["--port",  8080,  "--routes",  "/home",  "/dashboard",  "/profile /configs"]);
 
