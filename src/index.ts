@@ -143,7 +143,6 @@ export default class Command<R = any, T extends CommandArguments = CommandArgume
             }
         }
         for (const key in this.types) {
-            console.log('Key: %s, Value: %s, Type: %s', key, this.types[key].value, this.types[key].type)
             props[key] = await (key in props ? (
                 this.types[key].type === Array
                     ? [].concat(props[key])
