@@ -1,7 +1,7 @@
 {
   "private": false,
   "license": "ISC",
-  "version": "2.36.0",
+  "version": "2.37.0",
   "main": "lib/index.js",
   "name": "@arcaelas/command",
   "description": "If you are one of those who like to use terminals, you can create your own native commands using \"command\".",
