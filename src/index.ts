@@ -1,62 +1,39 @@
 import 'colors';
 import type { IObject, Noop } from "@arcaelas/utils"
+import Inquirer, { DistinctQuestion } from 'inquirer';
+import type { CheckboxQuestion, InputQuestion, NumberQuestion } from 'inquirer';
+
+
+
+
+export const inquirer = Inquirer.createPromptModule()
+export function argv2object(argv: string[]) {
+    let last: string
+    const props: Record<string, Inmutables[]> = {}
+    for (const item of argv) {
+        const [, key] = item.match(/^--([a-z][\w-_]{2,})/i) || []
+        if (key) last = key
+        else if (last in props) props[last].push(item)
+        else props[last] = [].concat(item)
+    }
+    return props
+}
+
 
 type Inmutables = string | number | boolean
-type InmutableConstructors = StringConstructor | NumberConstructor | BooleanConstructor | ArrayConstructor
-type ArgumentsObject<T extends CommandArguments> = {
-    [K in keyof T]: T[K] extends Noop ? (
-        T[K] extends InmutableConstructors ? Awaited<ReturnType<T[K]>> : (
-            Parameters<T[K]> extends [infer I] ? I : any
+type IPrompts<T extends IObject = IObject> = Record<keyof T, DistinctQuestion<T> & { description?: string }>
+type Answered<T extends IPrompts> = {
+    [K in keyof T]: T[K] extends CheckboxQuestion<T> ? string[] : (
+        T[K] extends InputQuestion<T> ? (
+            T[K]['transformer'] extends Noop ? Awaited<ReturnType<T[K]['transformer']>> : string
+        ) : (
+            T[K] extends NumberQuestion<T> ? number : string
         )
-    ) : (
-        T[K] extends IObject<Noop> ? (
-            T[K]["type"] extends Noop ? Awaited<ReturnType<T[K]["type"]>> : (
-                T[K]["static"] extends Inmutables ? T[K]["static"] : T[K]["value"]
-            )
-        ) : T[K]
-    )
-}
-type ParseArguments<T extends CommandArguments> = {
-    [K in keyof T]: T[K] extends Noop ? Awaited<ReturnType<T[K]>> : (
-        T[K] extends IObject<Noop> ? (
-            T[K]["type"] extends Noop ? Awaited<ReturnType<T[K]["type"]>> : (
-                T[K]["static"] extends Inmutables ? T[K]["static"] : T[K]["value"]
-            )
-        ) : T[K]
     )
 }
 
-interface CommandArguments {
-    [K: string]: Inmutables | Noop | {
-        /**
-         * @description
-         * Short description about this option to show when help command is run on this command.
-         */
-        description?: string
-        /**
-         * @description
-         * This prop indicate if this argument is optional, is true when "value" or "static" is set.
-         */
-        optional?: boolean
-        /** 
-         * @description
-         * Function to parse value from argument list.
-         */
-        type?: Noop<string, Inmutables>
-        /**
-         * @description
-         * Statics props can't be change
-         */
-        static?: Inmutables
-        /**
-         * @description
-         * Defult value to use when argument list dont receive value for this argument.
-         */
-        value?: Inmutables
-    }
-}
 
-interface CommandOptions<R extends any, T extends CommandArguments> {
+interface CommandOptions<T extends IPrompts, R = any> {
     /**
      * @description
      * Description about this command to show on help command run.
@@ -64,52 +41,39 @@ interface CommandOptions<R extends any, T extends CommandArguments> {
     description?: string
     /**
      * @description
-     * Props that will be passed to the command from the execution line.
-     * NOTE: Each argument will be processed with "type", before the command is executed. 
+     * Represents a collection of questions.
      */
-    arguments?: T
-    action(this: this, options: ParseArguments<T>, argv: string[]): R | Promise<R>
+    prompts?: T
+    /**
+     * @description
+     * This method is command handler
+     * @param options - Object with answers
+     * @param argv - Array with args command line
+     */
+    action(options: Answered<T>, argv: string[]): R | Promise<R>
 }
 
-export default interface Command<R = any, T extends CommandArguments = CommandArguments> {
-    new(options: CommandOptions<R, T>): this
-    (args: Partial<ArgumentsObject<T>> | Array<string | string[]>): Promise<Awaited<
+
+export default interface Command<R = any, T extends IPrompts = IPrompts> {
+    new(options: CommandOptions<T, R>): void
+    (options: Answered<T> | Array<string | string[]>): Promise<Awaited<
         ConstructorParameters<this> extends [infer P, ...any] ? (
-            P extends CommandOptions<any, any> ? ReturnType<P["action"]> : any
+            P extends CommandOptions<any, any> ? ReturnType<P['action']> : any
         ) : any
     >>
 }
 
 
-export default class Command<R = any, T extends CommandArguments = CommandArguments> {
+export default class Command<R = any, T extends IPrompts = IPrompts> {
 
-    protected description: string = "N/A"
-    protected types: any = {}
+    protected prompts: T
+    protected description: string
     protected action: Noop = () => { }
-    constructor(options: CommandOptions<R, T>) {
+    protected inquirer = Inquirer.createPromptModule()
+    constructor(options: CommandOptions<T, R>) {
         this.action = options.action
-        this.description = options.description
-        for (const key in (options.arguments || {})) {
-            const option = options.arguments[key] ?? { value: false } as any
-            this.types[key] = {
-                description: option?.description,
-                optional: option?.optional
-                    || Array.isArray(option)
-                    || ['string', 'number', 'boolean'].includes(typeof option)
-                    || ('static' in option || 'value' in option),
-                value: option === Array ? [] : (
-                    Array.isArray(option) ? option : (option?.static ?? option?.value)
-                ),
-                type: (typeof option === 'function' ? option : (
-                    Array.isArray(option) ? Array : (
-                        typeof option === 'object' ? (
-                            'static' in option ? () => option.static : option?.value?.constructor
-                        ) : option?.constructor
-                    )
-                )) ?? (v => v)
-            }
-        }
-        return this
+        this.prompts = options.prompts ?? {} as T
+        this.description = options.description ?? 'N/A'
     }
 
     /**
@@ -123,33 +87,13 @@ export default class Command<R = any, T extends CommandArguments = CommandArgume
      * start.exec(["--port 8080"])
      * start.exec(["--port", "8080"])
      */
-    exec(options: Partial<ArgumentsObject<T>>): ReturnType<this>
+    exec(options: Partial<Answered<T>>): ReturnType<this>
     exec(...argv: Array<string | string[]>): ReturnType<this>
     async exec(...argv: any) {
-        const props = {} as IObject
         const args = argv.flat(Infinity).filter(Boolean) as any[]
-        if (typeof args[0] === 'object')
-            Object.assign(props, args[0])
-        else {
-            let last: string
-            for (const item of args) {
-                const [, key] = item.match(/^--([a-z][\w-_]{2,})/i) || []
-                if (key) last = key
-                else if (this.types[last]) {
-                    props[last] = this.types[last].type === Array
-                        ? [].concat(props[last] ?? [], item)
-                        : item
-                }
-            }
-        }
-        for (const key in this.types) {
-            props[key] = await (key in props ? (
-                this.types[key].type === Array
-                    ? [].concat(props[key])
-                    : this.types[key].type(props[key])
-            ) : this.types[key].value ?? true)
-        }
-        return this.action.call(this, props, args as string[])
+        const props: IObject = typeof args[0] === 'object' ? args[0] : argv2object(args)
+        const answers = await this.inquirer(this.prompts, props)
+        return this.action.call(this, answers, args as string[])
     }
 
     /**
@@ -160,9 +104,9 @@ export default class Command<R = any, T extends CommandArguments = CommandArgume
         console.log(`Arcaelas Insiders CLI`.green.bold);
         console.log("%s", this.description)
         console.log("arguments:".yellow.bold)
-        for (const k in this.types) {
-            const option = this.types[k];
-            console.log(`   --${k}%s`, option.optional ? '?' : '');
+        for (const k in this.prompts) {
+            const option = this.prompts[k];
+            console.log(`   --${k}%s`, 'default' in option ? '?' : '');
             console.log(`       %s`, option.description);
         }
     }

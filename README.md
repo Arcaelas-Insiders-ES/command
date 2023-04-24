@@ -24,10 +24,11 @@ Let's start with the basic implementation steps.
 // Class Import Statement
 import Command from  '@arcaelas/command'
 
-// Function import statement
-import { command } from  '@arcaelas/command'
+// commonjs
+const { default: Command }  =  require('@arcaelas/command')
 
-// EsModule
+// tsconfig:
+//	allowSyntheticDefaultImports: true
 const Command  =  require('@arcaelas/command')
 ```
 
@@ -38,42 +39,30 @@ Today a wide variety of applications have **commands** to simplify processes and
 
 ```js
 const serve  =  new Command({
-	usage:"Start server!"
+	description: "Start server!"
 });
 ``` 
 
-# Arguments
+# Prompts
 
-It's a simple thing, your command is already stored in the list of enabled commands for the environment. We could now assume that your command requires a list of parameters, including the port number where you want to run the **server**.
+It's a simple thing, your command is already stored in the list of enabled commands for the environment.
+We could now assume that your command requires a list of parameters, including the port number where you want to run the **server**.
+> You can read documentation for [inquirer in npm](https://www.npmjs.com/package/inquirer)
 
 ```js
 const serve  =  Command({
-	options:{
-		port:  8080
-	}
-});
-```
-
->  Your command now expects the given port number to be **8080**, but in case the command runs like this:
-
-```serve --port 3000```
-Then the **port** property would be **3000** and not **8080**.
-
-## Inmutable arguments
-
-Like the properties, we have **static properties** that serve to prevent a bad typing of the command from generating an unexpected result, for this it is enough to define the **static** property within our option.
-
-```js
-const serve  =  new Command({
-	options:{
-		port:{
-			static:8080
+	questions:{
+		port:  {
+			type: "number",
+			default: 8080,
 		}
 	}
 });
 ```
+> Your command now expects the given port number to be **8080**, but in case the command runs like this:
 
-> By typing `serve --port 3000` the value of the **port** property would be **8080** since its value has been set to static.
+```serve --port 3000```
+Then the **port** property would be **3000** and not **8080**.
 
 # Formats
 
@@ -82,9 +71,14 @@ We can also talk about formatting the expected data in a property, it could be t
 ```js
 const serve  =  new Command({
 	options:{
+		id:{
+			type: "number",
+		},
 		port:{
-			value:8080,  // or static: 8080
-			type:Number
+			type: "string",
+			transformer(input, answers, flags){
+				return Number( input )
+			},
 		}
 	}
 });
@@ -98,10 +92,10 @@ Another advantage of using **Command** is the implementation of arrays within it
 const serve  =  new Command({
 	options:{
 		port:{
-			type:Number
+			type:"number"
 		},
 		routes:{
-			type:Array,
+			type: "checkbox",
 		}
 	}
 })
@@ -113,19 +107,15 @@ Declaring properties and types is a very useful thing to do, but it's useless un
 
 To achieve this we use the **action()** property of the configurations.
 
-```js
+```typescript
 const serve  =  new Command("serve",  {
 	options:{
 		port:{
-			type:Number,
-			value:8080
+			type: "number",
+			default: 8080
 		}
 	},
-	action(params){
-		params.options;  // object | Values from command and default values merged
-		params.args;  // object | Values that not defined in options.
-		params.argv;  // array | All values received from command
-	}
+	action(options: object, argv: string[]): any | Promise<any> {}
 })
 ```
 
@@ -154,7 +144,7 @@ serve.exec({
 });
 
 // You can pass command line arguments
-serve.exec( process.argv.slice(2)  );
+serve.exec( process.argv  );
 ```
 
 <hr/>
