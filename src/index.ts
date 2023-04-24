@@ -5,21 +5,21 @@ type Inmutables = string | number | boolean
 type InmutableConstructors = StringConstructor | NumberConstructor | BooleanConstructor | ArrayConstructor
 type ArgumentsObject<T extends CommandArguments> = {
     [K in keyof T]: T[K] extends Noop ? (
-        T[K] extends InmutableConstructors ? ReturnType<T[K]> : (
+        T[K] extends InmutableConstructors ? Awaited<ReturnType<T[K]>> : (
             Parameters<T[K]> extends [infer I] ? I : any
         )
     ) : (
         T[K] extends IObject<Noop> ? (
-            T[K]["type"] extends Noop ? ReturnType<T[K]["type"]> : (
+            T[K]["type"] extends Noop ? Awaited<ReturnType<T[K]["type"]>> : (
                 T[K]["static"] extends Inmutables ? T[K]["static"] : T[K]["value"]
             )
         ) : T[K]
     )
 }
 type ParseArguments<T extends CommandArguments> = {
-    [K in keyof T]: T[K] extends Noop ? ReturnType<T[K]> : (
+    [K in keyof T]: T[K] extends Noop ? Awaited<ReturnType<T[K]>> : (
         T[K] extends IObject<Noop> ? (
-            T[K]["type"] extends Noop ? ReturnType<T[K]["type"]> : (
+            T[K]["type"] extends Noop ? Awaited<ReturnType<T[K]["type"]>> : (
                 T[K]["static"] extends Inmutables ? T[K]["static"] : T[K]["value"]
             )
         ) : T[K]
