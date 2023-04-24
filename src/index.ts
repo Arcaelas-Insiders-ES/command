@@ -33,6 +33,11 @@ interface CommandArguments {
          * Short description about this option to show when help command is run on this command.
          */
         description?: string
+        /**
+         * @description
+         * This prop indicate if this argument is optional, is true when "value" or "static" is set.
+         */
+        optional?: boolean
         /** 
          * @description
          * Function to parse value from argument list.
@@ -54,9 +59,9 @@ interface CommandArguments {
 interface CommandOptions<R extends any, T extends CommandArguments> {
     /**
      * @description
-     * Short description about this command to show on help command run.
+     * Description about this command to show on help command run.
      */
-    usage?: string
+    description?: string
     /**
      * @description
      * Props that will be passed to the command from the execution line.
@@ -78,22 +83,28 @@ export default interface Command<R = any, T extends CommandArguments = CommandAr
 
 export default class Command<R = any, T extends CommandArguments = CommandArguments> extends Function {
 
+    protected description: string = "N/A"
     protected types: any = {}
-    public options: IObject<any>
+    protected action: Noop = () => { }
     constructor(options: CommandOptions<R, T>) {
         super("...args", "return this.exec(...args)")
-        this.options = { arguments: {}, ...options }
-        for (const key in this.options.arguments) {
-            const option = this.options.arguments[key] as any
+        this.action = options.action
+        this.description = options.description
+        for (const key in (options.arguments || {})) {
+            const option = options.arguments[key] ?? { value: false } as any
             this.types[key] = {
-                description: option.description,
+                description: option?.description,
+                optional: option?.optional
+                    || Array.isArray(option)
+                    || ['string', 'number', 'boolean'].includes(typeof option)
+                    || ('static' in option || 'value' in option),
                 value: option === Array ? [] : (
-                    Array.isArray(option) ? option : (option.static ?? option.value)
+                    Array.isArray(option) ? option : (option?.static ?? option?.value)
                 ),
                 type: typeof option === 'function' ? option : (
                     Array.isArray(option) ? Array : (
                         typeof option === 'object' ? (
-                            'static' in option ? () => option.static : option.value?.constructor
+                            'static' in option ? () => option.static : option?.value?.constructor
                         ) : option?.constructor
                     )
                 )
@@ -139,7 +150,7 @@ export default class Command<R = any, T extends CommandArguments = CommandArgume
                     : this.types[key].type(props[key])
             ) : this.types[key].value)
         }
-        return this.options.action(props, args as string[])
+        return this.action(props, args as string[])
     }
 
     /**
@@ -148,11 +159,11 @@ export default class Command<R = any, T extends CommandArguments = CommandArgume
      */
     help() {
         console.log(`Arcaelas Insiders CLI`.green.bold);
-        console.log("%s", this.options.usage || 'N/A')
+        console.log("%s", this.description)
         console.log("arguments:".yellow.bold)
         for (const k in this.types) {
             const option = this.types[k];
-            console.log(`   --${k}`);
+            console.log(`   --${k}%s`, option.optional ? '?' : '');
             console.log(`       %s`, option.description);
         }
     }
