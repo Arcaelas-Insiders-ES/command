@@ -1,9 +1,9 @@
 {
-  "private": false,
   "license": "ISC",
   "version": "3.0.0",
   "main": "lib/index.js",
   "name": "@arcaelas/command",
+  "homepage": "https://github.com/arcaelas/command#readme",
   "description": "If you are one of those who like to use terminals, you can create your own native commands using \"command\".",
   "author": {
     "name": "Arcaelas Insiders",
@@ -14,12 +14,12 @@
     "type": "git",
     "url": "https://github.com/arcaelas/cli.git"
   },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
-  },
   "bugs": {
     "email": "community@arcaelas.com",
     "url": "https://github.com/arcaelas/.github/issues"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
     "test": "jest",
@@ -38,7 +38,6 @@
     "console",
     "logger"
   ],
-  "homepage": "https://github.com/arcaelas/command#readme",
   "dependencies": {
     "@arcaelas/utils": "^1.24.0",
     "colors": "^1.4.0",
