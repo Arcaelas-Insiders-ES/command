@@ -68,7 +68,7 @@ interface CommandOptions<R extends any, T extends CommandArguments> {
      * NOTE: Each argument will be processed with "type", before the command is executed. 
      */
     arguments?: T
-    action(options: ParseArguments<T>, argv: string[]): R | Promise<R>
+    action(this: this, options: ParseArguments<T>, argv: string[]): R | Promise<R>
 }
 
 export default interface Command<R = any, T extends CommandArguments = CommandArguments> {
@@ -149,7 +149,7 @@ export default class Command<R = any, T extends CommandArguments = CommandArgume
                     : this.types[key].type(props[key])
             ) : this.types[key].value ?? true)
         }
-        return this.action(props, args as string[])
+        return this.action.call(this, props, args as string[])
     }
 
     /**
