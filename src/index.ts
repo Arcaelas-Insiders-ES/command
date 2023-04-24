@@ -110,7 +110,7 @@ export default class Command<R = any, T extends CommandArguments = CommandArgume
                 )
             }
         }
-        return this
+        return this.bind(this)
     }
 
     /**
@@ -144,11 +144,14 @@ export default class Command<R = any, T extends CommandArguments = CommandArgume
             }
         }
         for (const key in this.types) {
-            props[key] = await (key in props ? (
-                this.types[key].type === Array
-                    ? [].concat(props[key])
-                    : this.types[key].type(props[key])
-            ) : this.types[key].value)
+            props[key] = this.types[key].type(
+                "Hola mundo"
+            )
+            // props[key] = await (key in props ? (
+            //     this.types[key].type === Array
+            //         ? [].concat(props[key])
+            //         : this.types[key].type(props[key])
+            // ) : this.types[key].value)
         }
         return this.action(props, args as string[])
     }
