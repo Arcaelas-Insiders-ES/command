@@ -2,11 +2,13 @@ import Command from "../src"
 
 
 const command = new Command({
-    arguments:{
-        year_now: Number,
+    prompts: {
+        year_now: {
+            type: "number"
+        },
         year_birth: {
-            value: 1995,
-            type: Number,
+            type: "number",
+            default: 1995,
         },
     },
     action(options) {
@@ -14,21 +16,21 @@ const command = new Command({
     },
 })
 
-test("arguments:string", async ()=>{
-    expect( await command.exec('--year_now', '2023', '--year_birth', '1995') )
+test("arguments:string", async () => {
+    expect(await command.exec('--year_now', '2023', '--year_birth', '1995'))
         .toEqual(28)
 })
-test("arguments:object", async ()=>{
+test("arguments:object", async () => {
     expect(await command.exec({
         year_now: 2023,
         year_birth: 1995,
     })).toEqual(28)
 })
-test("arguments:string:default", async ()=>{
-    expect( await command.exec('--year_now', '2023') )
+test("arguments:string:default", async () => {
+    expect(await command.exec('--year_now', '2023'))
         .toEqual(28)
 })
-test("arguments:object:default", async ()=>{
+test("arguments:object:default", async () => {
     expect(await command.exec({
         year_now: 2023
     })).toEqual(28)
