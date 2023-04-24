@@ -5,16 +5,28 @@
   "main": "lib/index.js",
   "name": "@arcaelas/command",
   "description": "If you are one of those who like to use terminals, you can create your own native commands using \"command\".",
+  "author": {
+    "name": "Arcaelas Insiders",
+    "email": "comunity@arcaelas.com",
+    "url": "https://github.com/arcaelas"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arcaelas/cli.git"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "bugs": {
+    "email": "community@arcaelas.com",
+    "url": "https://github.com/arcaelas/.github/issues"
+  },
   "scripts": {
     "test": "jest",
     "start": "tsc --watch",
     "commit": "npm run test && npm publish --access=public",
     "prepublishOnly": "tsc && npm version minor",
     "postpublish": "rm -rf lib"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://github.com/arcaelas/command.git"
   },
   "keywords": [
     "command",
@@ -26,14 +38,6 @@
     "console",
     "logger"
   ],
-  "author": {
-    "name": "Arcaelas Insiders",
-    "email": "community@arcaelas.com",
-    "url": "https://github.com/arcaelas"
-  },
-  "bugs": {
-    "url": "https://github.com/arcaelas/command/issues"
-  },
   "homepage": "https://github.com/arcaelas/command#readme",
   "dependencies": {
     "@arcaelas/utils": "^1.24.0",
