@@ -1,54 +1,54 @@
 {
-    "license": "ISC",
-    "version": "1.0.0",
-    "main": "lib/index.js",
-    "name": "@arcaelas/command",
-    "homepage": "https://github.com/arcaelas/command#readme",
-    "description": "If you are one of those who like to use terminals, you can create your own native commands using \"command\".",
-    "author": {
-        "name": "Arcaelas Insiders",
-        "email": "comunity@arcaelas.com",
-        "url": "https://github.com/arcaelas"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/arcaelas/command.git"
-    },
-    "bugs": {
-        "email": "community@arcaelas.com",
-        "url": "https://github.com/arcaelas/command/issues"
-    },
-    "publishConfig": {
-        "registry": "https://registry.npmjs.org/"
-    },
-    "scripts": {
-        "test": "jest",
-        "start": "tsc --watch",
-        "commit": "npm run test && npm publish --access=public",
-        "prepublishOnly": "tsc && npm version minor",
-        "postpublish": "rm -rf lib"
-    },
-    "keywords": [
-        "command",
-        "cmd",
-        "arcaelas",
-        "@arcaelas",
-        "framework",
-        "terminal",
-        "console",
-        "logger"
-    ],
-    "dependencies": {
-        "@arcaelas/utils": "^1.24.0",
-        "colors": "^1.4.0",
-        "inquirer": "8"
-    },
-    "devDependencies": {
-        "@types/inquirer": "^9.0.3",
-        "@types/jest": "^29.5.1",
-        "@types/node": "^16.11.11",
-        "jest": "^29.5.0",
-        "ts-jest": "^29.1.0",
-        "typescript": "^5.0.4"
-    }
+  "license": "ISC",
+  "version": "1.0.0",
+  "main": "lib/index.js",
+  "name": "@arcaelas/command",
+  "homepage": "https://github.com/arcaelas/command#readme",
+  "description": "If you are one of those who like to use terminals, you can create your own native commands using \"command\".",
+  "author": {
+    "name": "Arcaelas Insiders",
+    "email": "comunity@arcaelas.com",
+    "url": "https://github.com/arcaelas"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arcaelas/command.git"
+  },
+  "bugs": {
+    "email": "community@arcaelas.com",
+    "url": "https://github.com/arcaelas/command/issues"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "test": "jest",
+    "start": "tsc --watch",
+    "commit": "npm run test && npm publish --access=public",
+    "prepublishOnly": "tsc && npm version minor",
+    "postpublish": "rm -rf lib"
+  },
+  "keywords": [
+    "command",
+    "cmd",
+    "arcaelas",
+    "@arcaelas",
+    "framework",
+    "terminal",
+    "console",
+    "logger"
+  ],
+  "dependencies": {
+    "@arcaelas/utils": "^1.24.0",
+    "colors": "^1.4.0",
+    "inquirer": "8"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.3",
+    "@types/jest": "^29.5.1",
+    "@types/node": "^16.11.11",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.4"
+  }
 }
