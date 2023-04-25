@@ -41,7 +41,7 @@
   "dependencies": {
     "@arcaelas/utils": "^1.24.0",
     "colors": "^1.4.0",
-    "inquirer": "^9.2.0"
+    "inquirer": "8"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.3",

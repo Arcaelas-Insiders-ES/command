@@ -1,33 +1,31 @@
 import 'colors';
+import Inquirer from 'inquirer';
 import type { IObject, Noop } from "@arcaelas/utils"
-import Inquirer, { DistinctQuestion } from 'inquirer';
-import type { CheckboxQuestion, InputQuestion, NumberQuestion } from 'inquirer';
-
-
-
+import type { DistinctQuestion, CheckboxQuestion, InputQuestion, NumberQuestion } from 'inquirer';
 
 export const inquirer = Inquirer.createPromptModule()
 export function argv2object(argv: string[]) {
-    let last: string
-    const props: Record<string, Inmutables[]> = {}
+    let last: string = ""
+    const props: IObject = {}
     for (const item of argv) {
         const [, key] = item.match(/^--([a-z][\w-_]{2,})/i) || []
-        if (key) last = key
-        else if (last in props) props[last].push(item)
-        else props[last] = [].concat(item)
+        if (key)
+            last = key
+        else if (last in props)
+            props[last] = [].concat(props[last] as any, item as any)
+        else
+            props[last] = item
     }
     return props
 }
 
-
-type Inmutables = string | number | boolean
 type IPrompts<T extends IObject = IObject> = Record<keyof T, DistinctQuestion<T> & { description?: string }>
 type Answered<T extends IPrompts> = {
-    [K in keyof T]: T[K] extends CheckboxQuestion<T> ? string[] : (
+    [K in keyof T]: T[K] extends CheckboxQuestion<T> ? any[] : (
         T[K] extends InputQuestion<T> ? (
-            T[K]['transformer'] extends Noop ? Awaited<ReturnType<T[K]['transformer']>> : string
+            T[K]['transformer'] extends Noop ? Awaited<ReturnType<T[K]['transformer']>> : any
         ) : (
-            T[K] extends NumberQuestion<T> ? number : string
+            T[K] extends NumberQuestion<T> ? number : any
         )
     )
 }
