@@ -11,9 +11,9 @@
     "@jridgewell/trace-mapping" "^0.3.9"
 
 "@arcaelas/utils@^1.24.0":
-  version "1.26.0"
-  resolved "https://registry.yarnpkg.com/@arcaelas/utils/-/utils-1.26.0.tgz#6aae49acdef30a8fe18cae015411e6f553871f35"
-  integrity sha512-Riic/9EXmDsosZw75bZXGrQjPSs/0/hbESXO5zyhYUFEGPMAXO8zrP7iFbjQbNkER+BjNr+sZDLQRqmMmDk2Sw==
+  version "1.28.0"
+  resolved "https://registry.yarnpkg.com/@arcaelas/utils/-/utils-1.28.0.tgz#566d78dcf89642339b7ddebcbd8f6b9d5d310352"
+  integrity sha512-vD3bOUhLHYxlOT1xdYWQyaw6W7yMG3hBSr/EuFINSfu2xEFPgDGkAolt/esN5re0dv4CsvvADovZWbeJm9Xlbw==
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.18.6", "@babel/code-frame@^7.21.4":
   version "7.21.4"
