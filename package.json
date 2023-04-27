@@ -39,7 +39,7 @@
     "logger"
   ],
   "dependencies": {
-    "@arcaelas/utils": "^1.24.0",
+    "@arcaelas/utils": "^1.30.0",
     "colors": "^1.4.0",
     "inquirer": "8"
   },
