@@ -90,9 +90,10 @@ export default class Command<R = any, T extends IPrompts = IPrompts> {
     async exec(...argv: any) {
         const args = argv.flat(Infinity).filter(Boolean) as any[]
         const props: any = typeof args[0] === 'object' ? args[0] : argv2object(args)
-        for (const key in props)
-            props[key] = ["list", "rawlist", "checkbox"].includes(this.prompts[key]?.type as any)
-                ? props[key] : props[key][0] as any
+        for (const key in props) {
+            const value = [].concat(props[key])
+            props[key] = ["list", "rawlist", "checkbox"].includes(this.prompts[key]?.type as any) ? value : value[0]
+        }
         const answers = await this.inquirer(this.prompts, props)
         return this.action.call(this, answers, args as string[])
     }

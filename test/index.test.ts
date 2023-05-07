@@ -18,12 +18,15 @@ const command = new Command({
 
 
 test("arguments:string", async () => {
-    expect(await command.exec('--year_now', '2023', '--year_birth', '1995'))
-        .toEqual(28)
+    const age = await command.exec('--year_now', '2023', '2014', '--year_birth', '1995')
+    console.log("arguments:string", age)
+    expect(age).toEqual(28)
 })
 test("arguments:object", async () => {
-    expect(await command.exec({
+    const age = await command.exec({
         year_now: 2023,
         year_birth: 1995,
-    })).toEqual(28)
+    })
+    console.log("arguments:object", age)
+    expect(age).toEqual(28)
 })
