@@ -14,7 +14,7 @@ export function argv2object(argv: string[]) {
         else if (last in props)
             props[last] = [].concat(props[last] as any, item as any)
         else
-            props[last] = item
+            props[last] = [item] as any
     }
     return props
 }
@@ -89,7 +89,10 @@ export default class Command<R = any, T extends IPrompts = IPrompts> {
     exec(...argv: Array<string | string[]>): ReturnType<this>
     async exec(...argv: any) {
         const args = argv.flat(Infinity).filter(Boolean) as any[]
-        const props: IObject = typeof args[0] === 'object' ? args[0] : argv2object(args)
+        const props: any = typeof args[0] === 'object' ? args[0] : argv2object(args)
+        for (const key in props)
+            props[key] = ["list", "rawlist", "checkbox"].includes(this.prompts[key]?.type as any)
+                ? props[key] : props[key][0] as any
         const answers = await this.inquirer(this.prompts, props)
         return this.action.call(this, answers, args as string[])
     }
