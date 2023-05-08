@@ -53,7 +53,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@arcaelas/utils": "^1.45.3",
+    "@arcaelas/utils": "^1.45.5",
     "@types/inquirer": "8",
     "colors": "^1.4.0",
     "inquirer": "8"
