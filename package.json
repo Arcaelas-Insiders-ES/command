@@ -1,15 +1,19 @@
 {
   "license": "ISC",
   "version": "3.4.0",
-  "main": "lib/index.js",
   "name": "@arcaelas/command",
   "homepage": "https://github.com/arcaelas/command#readme",
   "description": "If you are one of those who like to use terminals, you can create your own native commands using \"command\".",
-  "author": {
-    "name": "Arcaelas Insiders",
-    "email": "comunity@arcaelas.com",
-    "url": "https://github.com/arcaelas"
-  },
+  "keywords": [
+    "command",
+    "cmd",
+    "arcaelas",
+    "@arcaelas",
+    "framework",
+    "terminal",
+    "console",
+    "logger"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/arcaelas/command.git"
@@ -17,6 +21,22 @@
   "bugs": {
     "email": "community@arcaelas.com",
     "url": "https://github.com/arcaelas/command/issues"
+  },
+  "main": "./lib/index.js",
+  "exports": {
+    "default": "./lib/index.js",
+    "require": "./lib/index.cjs",
+    "import": "./lib/index.js"
+  },
+  "files": [
+    "lib/",
+    "*.md",
+    "*.json"
+  ],
+  "author": {
+    "name": "Arcaelas Insiders",
+    "email": "comunity@arcaelas.com",
+    "url": "https://github.com/arcaelas"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
@@ -28,22 +48,6 @@
     "prepublishOnly": "npm run build && npm version minor",
     "postpublish": "rm -rf lib"
   },
-  "keywords": [
-    "command",
-    "cmd",
-    "arcaelas",
-    "@arcaelas",
-    "framework",
-    "terminal",
-    "console",
-    "logger"
-  ],
-  "dependencies": {
-    "@arcaelas/utils": "^1.34.0",
-    "@types/inquirer": "8",
-    "colors": "^1.4.0",
-    "inquirer": "8"
-  },
   "devDependencies": {
     "@types/jest": "^29.5.1",
     "@types/node": "^20.1.0",
@@ -52,5 +56,11 @@
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@arcaelas/utils": "^1.34.0",
+    "@types/inquirer": "8",
+    "colors": "^1.4.0",
+    "inquirer": "8"
   }
 }
