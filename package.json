@@ -44,7 +44,7 @@
     "postpublish": "rm -rf lib"
   },
   "dependencies": {
-    "@arcaelas/utils": "^1.45.9",
+    "@arcaelas/utils": "^1.45.10",
     "@types/inquirer": "8",
     "colors": "^1.4.0",
     "inquirer": "8"
