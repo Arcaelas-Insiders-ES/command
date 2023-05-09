@@ -22,11 +22,11 @@ build({
     outfile: "./lib/index.js",
     bundle: true,
     minify: true,
-    platform: "neutral",
+    platform: "node",
     format: "cjs",
 })
 
-// Test Files
+// // Test Files
 build({
     entryPoints: ["./test/index.test.ts"],
     outfile: "./test/index.test.js",
