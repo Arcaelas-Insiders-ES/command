@@ -34,7 +34,8 @@
     "url": "https://github.com/arcaelas"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "scripts": {
     "test": "yarn build && jest",
@@ -47,6 +48,12 @@
     "testPathIgnorePatterns": [
       "test/*.ts"
     ]
+  },
+  "dependencies": {
+    "@arcaelas/utils": "^1.45.16",
+    "@types/inquirer": "8",
+    "colors": "^1.4.0",
+    "inquirer": "8"
   },
   "devDependencies": {
     "@types/jest": "^29.5.1",
