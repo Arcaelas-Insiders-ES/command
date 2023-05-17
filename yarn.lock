@@ -10,7 +10,7 @@
     "@jridgewell/gen-mapping" "^0.3.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@arcaelas/utils@^1.45.17":
+"@arcaelas/utils@^1.45.18":
   version "1.45.18"
   resolved "https://registry.yarnpkg.com/@arcaelas/utils/-/utils-1.45.18.tgz#f2c26dfef7f2f4d9d83a9f35607de62228b414de"
   integrity sha512-jGlLwoEsK5+r3cIgmj+1U0UAoSG8aHbqjm187sWVrmPFBGVKNMjhKsupHLgV+WJC8UToiw3PiWiWgiS1mEkzeQ==
