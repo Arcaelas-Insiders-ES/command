@@ -1,6 +1,6 @@
 {
   "license": "ISC",
-  "version": "3.5.6",
+  "version": "3.5.7",
   "name": "@arcaelas/command",
   "homepage": "https://github.com/arcaelas/command#readme",
   "description": "If you are one of those who like to use terminals, you can create your own native commands using \"command\".",
