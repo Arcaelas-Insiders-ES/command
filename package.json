@@ -1,65 +1,65 @@
 {
-  "license": "ISC",
-  "version": "3.5.7",
-  "name": "@arcaelas/command",
-  "homepage": "https://github.com/arcaelas/command#readme",
-  "description": "If you are one of those who like to use terminals, you can create your own native commands using \"command\".",
-  "keywords": [
-    "command",
-    "cmd",
-    "arcaelas",
-    "@arcaelas",
-    "framework",
-    "terminal",
-    "console",
-    "logger"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/arcaelas/command.git"
-  },
-  "bugs": {
-    "email": "community@arcaelas.com",
-    "url": "https://github.com/arcaelas/command/issues"
-  },
-  "main": "./build/index.js",
-  "files": [
-    "build/",
-    "*.md",
-    "*.json"
-  ],
-  "author": {
-    "name": "Arcaelas Insiders",
-    "email": "comunity@arcaelas.com",
-    "url": "https://github.com/arcaelas"
-  },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/",
-    "access": "public"
-  },
-  "scripts": {
-    "test": "yarn build && jest",
-    "build": "tsc && ts-node esbuild.js",
-    "commit": "npm publish --access=public",
-    "prepublishOnly": "yarn test",
-    "postpublish": "rm -rf build"
-  },
-  "jest": {
-    "testPathIgnorePatterns": [
-      "test/*.ts"
-    ]
-  },
-  "dependencies": {
-    "@arcaelas/utils": "^1.45.16",
-    "@types/inquirer": "8",
-    "colors": "^1.4.0",
-    "inquirer": "8"
-  },
-  "devDependencies": {
-    "@types/jest": "^29.5.1",
-    "esbuild": "^0.17.18",
-    "jest": "^29.5.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.0.4"
-  }
+	"license": "ISC",
+	"version": "3.5.7",
+	"name": "@arcaelas/command",
+	"homepage": "https://github.com/arcaelas/command#readme",
+	"description": "If you are one of those who like to use terminals, you can create your own native commands using \"command\".",
+	"keywords": [
+		"command",
+		"cmd",
+		"arcaelas",
+		"@arcaelas",
+		"framework",
+		"terminal",
+		"console",
+		"logger"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/arcaelas/command.git"
+	},
+	"bugs": {
+		"email": "community@arcaelas.com",
+		"url": "https://github.com/arcaelas/command/issues"
+	},
+	"main": "build/index.js",
+	"files": [
+		"build/",
+		"*.md",
+		"*.json"
+	],
+	"author": {
+		"name": "Arcaelas Insiders",
+		"email": "comunity@arcaelas.com",
+		"url": "https://github.com/arcaelas"
+	},
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	},
+	"scripts": {
+		"test": "yarn build && jest",
+		"build": "tsc && ts-node esbuild.js",
+		"commit": "npm publish --access=public",
+		"prepublishOnly": "yarn test",
+		"postpublish": "rm -rf build"
+	},
+	"jest": {
+		"testPathIgnorePatterns": [
+			"test/*.ts"
+		]
+	},
+	"dependencies": {
+		"@arcaelas/utils": "^1.45.17",
+		"@types/inquirer": "^8.0.0",
+		"colors": "^1.4.0",
+		"inquirer": "^8.0.0"
+	},
+	"devDependencies": {
+		"@types/jest": "^29.5.1",
+		"esbuild": "^0.17.18",
+		"jest": "^29.5.0",
+		"ts-node": "^10.9.1",
+		"typescript": "^5.0.4"
+	}
 }
