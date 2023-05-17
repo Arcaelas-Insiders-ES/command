@@ -22,9 +22,9 @@
     "email": "community@arcaelas.com",
     "url": "https://github.com/arcaelas/command/issues"
   },
-  "main": "./lib/index.js",
+  "main": "./build/index.js",
   "files": [
-    "lib/",
+    "build/",
     "*.md",
     "*.json"
   ],
@@ -40,20 +40,18 @@
     "test": "yarn build && jest",
     "build": "tsc && ts-node esbuild.js",
     "commit": "npm publish --access=public",
-    "prepublishOnly": "yarn test && npm version patch",
-    "postpublish": "rm -rf lib"
+    "prepublishOnly": "yarn test",
+    "postpublish": "rm -rf build"
   },
-  "dependencies": {
-    "@arcaelas/utils": "^1.45.10",
-    "@types/inquirer": "8",
-    "colors": "^1.4.0",
-    "inquirer": "8"
+  "jest": {
+    "testPathIgnorePatterns": [
+      "test/*.ts"
+    ]
   },
   "devDependencies": {
     "@types/jest": "^29.5.1",
     "esbuild": "^0.17.18",
     "jest": "^29.5.0",
-    "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
   }
