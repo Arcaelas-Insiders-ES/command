@@ -17,8 +17,6 @@ Let's start with the basic implementation steps.
 > yarn add --save @arcaelas/command
 ```
 
-
-
 ## Implementation
 ```javascript
 // Class Import Statement
